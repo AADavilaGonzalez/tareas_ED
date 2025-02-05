@@ -1,0 +1,15 @@
+# Archivos y Directorios de Entorno
+.vscode
+.DS_Store
+
+# Ejecutables
+*.exe
+*.app
+
+# Archivos Generados
+*.txt
+*.zip
+*.tar
+*.7z
+
+# Lista Blanca
