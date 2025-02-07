@@ -27,32 +27,42 @@ typedef struct
     float precio_uni;
 } Producto;
 
-void introducir_datos(Producto productos, int num_productos);
+void introducir_datos(Producto *productos);
 
 int main(void)
 {
     Producto productos[MAX_PRODUCTOS];
+    Producto *ptr_productos;
+
+    ptr_productos = productos;
+
+    introducir_datos(ptr_productos);
+    
+
+    return 0;
+}
+
+void introducir_datos(Producto *productos){
     int num_productos = 0, op1 = 0, op2 = 0;
 
-    printf("Introduzca los datos solicitados\n");
     while (num_productos < MAX_PRODUCTOS)
     {
         while (1)
         { // Ciclo para verificar si la informacion es correcta
+            printf("Introduzca los datos solicitados\n");
             printf("Producto %d: \n", num_productos + 1);
             while (1)
             {
                 printf("Introduzca la clave del producto\n");
                 if (scanf("%d", &productos[num_productos].clave) != 1)
                 {
-                    printf("Introduzca un numero valido\n");
-                    while (getchar() != '\n')
-                        ;
+                    printf("Introduzca un numero valido\n\n");
+                    while (getchar() != '\n');
                     continue;
                 }
                 if (productos[num_productos].clave <= 0)
                 {
-                    printf("Introduzca un numero positivo\n");
+                    printf("Introduzca un numero positivo\n\n");
                     continue;
                 }
                 break;
@@ -64,14 +74,13 @@ int main(void)
                 printf("Introduzca la existencia del producto\n");
                 if (scanf("%d", &productos[num_productos].exist) != 1)
                 {
-                    printf("Introduzca un numero valido\n");
-                    while (getchar() != '\n')
-                        ;
+                    printf("Introduzca un numero valido\n\n");
+                    while (getchar() != '\n');
                     continue;
                 }
                 if (productos[num_productos].exist <= 0)
                 {
-                    printf("Introduzca un numero positivo\n");
+                    printf("Introduzca un numero positivo\n\n");
                     continue;
                 }
                 break;
@@ -81,14 +90,13 @@ int main(void)
                 printf("Introduzca la existencia minima del producto\n");
                 if (scanf("%d", &productos[num_productos].min_exist) != 1)
                 {
-                    printf("Introduzca un numero valido\n");
-                    while (getchar() != '\n')
-                        ;
+                    printf("Introduzca un numero valido\n\n");
+                    while (getchar() != '\n');
                     continue;
                 }
                 if (productos[num_productos].min_exist <= 0)
                 {
-                    printf("Introduzca un numero positivo\n");
+                    printf("Introduzca un numero positivo\n\n");
                     continue;
                 }
                 break;
@@ -98,14 +106,14 @@ int main(void)
                 printf("Introduzca el precio unitario del producto\n");
                 if (scanf("%f", &productos[num_productos].precio_uni) != 1)
                 {
-                    printf("Introduzca un numero valido\n");
+                    printf("Introduzca un numero valido\n\n");
                     while (getchar() != '\n')
                         ;
                     continue;
                 }
                 if (productos[num_productos].precio_uni <= 0)
                 {
-                    printf("Introduzca un numero positivo\n");
+                    printf("Introduzca un numero positivo\n\n");
                     continue;
                 }
                 break;
@@ -115,14 +123,14 @@ int main(void)
                 printf("¿La informacion introducida es correcta? (1.- Si | 2.- No)\n");
                 if (scanf("%d", &op1) != 1)
                 {
-                    printf("Introduzca un numero valido\n");
+                    printf("Introduzca un numero valido\n\n");
                     while (getchar() != '\n')
                         ;
                     continue;
                 }
                 if (op1 < 0 || op1 > 3)
                 {
-                    printf("Introduzca un numero positivo\n");
+                    printf("Introduzca un numero positivo\n\n");
                     continue;
                 }
                 break;
@@ -158,6 +166,4 @@ int main(void)
             num_productos += 1;
         }
     }
-
-    return 0;
 }
