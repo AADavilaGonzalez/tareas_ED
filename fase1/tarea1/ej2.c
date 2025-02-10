@@ -1,15 +1,5 @@
-/*
-b) Reabastecimiento de un producto: se deben actualizar los campos
-que correspondan. (Datos: clave, cantidad comprada).
-
-c) Actualizar el precio de un producto. (Datos: clave, porcentaje de
-aumento).
-
-d) Informar sobre un producto: se deben proporcionar todos los datos
-relacionados a un producto. (Datos: clave).
-*/
-
 #include <stdio.h>
+#include <stdlib.h>
 
 #define MAX_CHAR 51
 #define MAX_PRODUCTOS 20
@@ -25,21 +15,24 @@ typedef struct
 
 
 void imprimir_producto(Producto *productos, int num_productos);
-void introducir_datos(Producto *productos);
-void venta_producto(Producto *productos);
-void restock_producto(Producto *productos);
-void actualizar_precio_producto(Producto *productos);
-void informe_productos(Producto *productos);
+void introducir_datos(Producto *productos, int* num_productos);
+void venta_producto(Producto *productos, int *num_productos);
+void restock_producto(Producto *productos, int *num_productos);
+void actualizar_precio_producto(Producto *productos, int *num_productos);
+void informe_productos(Producto *productos, int *num_productos);
 
 int main(void)
 {
     Producto productos[MAX_PRODUCTOS];
     Producto *ptr_productos;
     int op1 = 0, i = 0;
+    int num_productos = 0;
+    int *ptr_num_productos;
 
     ptr_productos = productos;
+    ptr_num_productos = &num_productos;
 
-    introducir_datos(ptr_productos);
+    introducir_datos(ptr_productos, ptr_num_productos);
 
     while(1){
         while (1)
@@ -66,66 +59,74 @@ int main(void)
         }
         switch (op1){
         case 1:
-            venta_producto(ptr_productos);
+            venta_producto(ptr_productos, ptr_num_productos);
             break;
         case 2:
-            restock_producto(ptr_productos);
+            restock_producto(ptr_productos, ptr_num_productos);
             break;
         case 3:
-            actualizar_precio_producto(ptr_productos);
+            actualizar_precio_producto(ptr_productos, ptr_num_productos);
             break;
         case 4:
-            informe_productos(ptr_productos);
+            informe_productos(ptr_productos, ptr_num_productos);
             break;
         }
         if(op1 == 5) break;
-        for(i = 0; i<= 50; i++) printf("\n");
+        limpiar_pantalla();
     }
     return 0;
 }
 
-void imprimir_producto(Producto *productos, int num_producto){
-    printf("\n\n\n\t\tNumero de producto: %d\n", num_producto);
-    printf("\t\tClave del producto: %d\n", productos->clave);
-    printf("\t\tDescripcion del producto: %s\n", productos->descrip);
-    printf("\t\tExistencia del producto: %d\n", productos->exist);
-    printf("\t\tExistencia minima del producto: %d\n", productos->min_exist);
-    printf("\t\tPrecio unitario del producto: %f\n\n\n", productos->precio_uni);
+void limpiar_pantalla(){
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
+void imprimir_producto(Producto *productos, int num_productos){
+    printf("\n\n\n\t\tNumero de producto: %d\n", num_productos+1);
+    printf("\t\tClave del producto: %d\n", productos[num_productos].clave);
+    printf("\t\tDescripcion del producto: %s\n", productos[num_productos].descrip);
+    printf("\t\tExistencia del producto: %d\n", productos[num_productos].exist);
+    printf("\t\tExistencia minima del producto: %d\n", productos[num_productos].min_exist);
+    printf("\t\tPrecio unitario del producto: %f\n\n\n", productos[num_productos].precio_uni);
     return;
 }
 
-void introducir_datos(Producto *productos){
-    int num_productos = 0, op1 = 0, op2 = 0, i = 0;
+void introducir_datos(Producto *productos, int *num_productos){
+    int op1 = 0, op2 = 0, i = 0;
 
-    while (num_productos < MAX_PRODUCTOS)
+    while (*num_productos < MAX_PRODUCTOS)
     {
         while (1)
         { // Ciclo para verificar si la informacion es correcta
             printf("Introduzca los datos solicitados\n");
-            printf("Producto %d: \n", num_productos + 1);
+            printf("Producto %d: \n", *num_productos + 1);
             while (1){
                 printf("Introduzca la clave del producto\n");
-                if (scanf("%d", &productos[num_productos].clave) != 1){
+                if (scanf("%d", &productos[*num_productos].clave) != 1){
                     printf("Introduzca un numero valido\n\n");
                     while (getchar() != '\n');
                     continue;
                 }
-                if (productos[num_productos].clave <= 0){
+                if (productos[*num_productos].clave <= 0){
                     printf("Introduzca un numero positivo\n\n");
                     continue;
                 }
                 break;
             }
             printf("Introduzca la descripcion del producto\n");
-            scanf("%s", productos[num_productos].descrip);
+            scanf("%s", productos[*num_productos].descrip);
             while (1){
                 printf("Introduzca la existencia del producto\n");
-                if (scanf("%d", &productos[num_productos].exist) != 1){
+                if (scanf("%d", &productos[*num_productos].exist) != 1){
                     printf("Introduzca un numero valido\n\n");
                     while (getchar() != '\n');
                     continue;
                 }
-                if (productos[num_productos].exist <= 0){
+                if (productos[*num_productos].exist <= 0){
                     printf("Introduzca un numero positivo\n\n");
                     continue;
                 }
@@ -133,12 +134,12 @@ void introducir_datos(Producto *productos){
             }
             while (1){
                 printf("Introduzca la existencia minima del producto\n");
-                if (scanf("%d", &productos[num_productos].min_exist) != 1){
+                if (scanf("%d", &productos[*num_productos].min_exist) != 1){
                     printf("Introduzca un numero valido\n\n");
                     while (getchar() != '\n');
                     continue;
                 }
-                if (productos[num_productos].min_exist <= 0){
+                if (productos[*num_productos].min_exist <= 0){
                     printf("Introduzca un numero positivo\n\n");
                     continue;
                 }
@@ -146,19 +147,19 @@ void introducir_datos(Producto *productos){
             }
             while (1){
                 printf("Introduzca el precio unitario del producto\n");
-                if (scanf("%f", &productos[num_productos].precio_uni) != 1){
+                if (scanf("%f", &productos[*num_productos].precio_uni) != 1){
                     printf("Introduzca un numero valido\n\n");
                     while (getchar() != '\n')
                         ;
                     continue;
                 }
-                if (productos[num_productos].precio_uni <= 0){
+                if (productos[*num_productos].precio_uni <= 0){
                     printf("Introduzca un numero positivo\n\n");
                     continue;
                 }
                 break;
             }
-            imprimir_producto(productos, num_productos+1);
+            imprimir_producto(productos, *num_productos);
             while (1){
                 printf("¿La informacion introducida es correcta? (1.- Si | 2.- No)\n");
                 if (scanf("%d", &op1) != 1){
@@ -191,27 +192,97 @@ void introducir_datos(Producto *productos){
             break;
         }
         if (op2 == 2){
-            for(i = 0; i<= 50; i++) printf("\n");
+            limpiar_pantalla();
             break;
         }else{
-            for(i = 0; i<= 50; i++) printf("\n");
-            num_productos += 1;
+            limpiar_pantalla();
+            *num_productos += 1;
         }
     }
 }
 
-void venta_producto(Producto *productos){
+void venta_producto(Producto *productos, int *num_productos){
+    // Datos: clave, cantidad vendida
+    int clave, venta, nueva_exist = 0;
+    int i = 0, aux = 0, pos = 0, op1;
+    while(1){
+        aux = 1;
+        while (1){
+            printf("Introduzca la clave del producto\n");
+            if (scanf("%d", &clave) != 1){
+                printf("Introduzca un numero valido\n\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            if (clave < 0){
+                printf("Introduzca un numero positivo\n\n");
+                continue;
+            }
+            break;
+        }
+        for (i = 0; i < *num_productos; i++) {
+            if (productos[i].clave == clave) {
+                aux = 0;
+                pos = i;
+                break;
+            }
+        }
+        if(aux == 1){
+            printf("No se encontro la clave deseada\n");
+            for(i = 0; i<= 50; i++) printf("\n");
+            continue;
+        }
+        while (1){
+            printf("Introduzca la cantidad vendida\n");
+            if (scanf("%d", &venta) != 1){
+                printf("Introduzca un numero valido\n\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            if (venta < 0){
+                printf("Introduzca un numero positivo\n\n");
+                continue;
+            }
+            break;
+        }
+        nueva_exist = productos[pos].exist - venta;
+        if(nueva_exist < productos[pos].min_exist){
+            printf("La nueva existencia esta por debajo del minimo\n");
+            continue;
+        }else{
+            productos[pos].exist = nueva_exist;
+            printf("Se realizo la venta correctamente\n");
+        }
+        while (1){
+            printf("¿Desea realizar otra venta?(1.- Si 2.- No)\n");
+            if (scanf("%d", &op1) != 1){
+                printf("Introduzca un numero valido\n\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            if (op1 < 0){
+                printf("Introduzca un numero positivo\n\n");
+                continue;
+            }
+            for(i = 0; i<= 50; i++) printf("\n");
+            break;
+        }
+        if(op1 == 2){
+            break;
+        }
+
+    }
+}
+
+void restock_producto(Producto *productos, int *num_productos)
+{
 
 }
 
-void restock_producto(Producto *productos){
-
+void actualizar_precio_producto(Producto *productos, int *num_productos)
+{
 }
 
-void actualizar_precio_producto(Producto *productos){
-
-}
-
-void informe_productos(Producto *productos){
-
+void informe_productos(Producto *productos, int *num_productos)
+{
 }
