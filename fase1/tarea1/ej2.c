@@ -14,6 +14,7 @@ typedef struct
 } Producto;
 
 void limpiar_pantalla();
+int obtener_clave();
 void imprimir_producto(Producto *productos, int num_productos);
 void introducir_datos(Producto *productos, int* num_productos);
 void venta_producto(Producto *productos, int *num_productos);
@@ -59,16 +60,19 @@ int main(void)
         }
         switch (op1){
         case 1:
-            venta_producto(ptr_productos, ptr_num_productos);
             limpiar_pantalla();
+            venta_producto(ptr_productos, ptr_num_productos);
             break;
         case 2:
+            limpiar_pantalla();
             restock_producto(ptr_productos, ptr_num_productos);
             break;
         case 3:
+            limpiar_pantalla();
             actualizar_precio_producto(ptr_productos, ptr_num_productos);
             break;
         case 4:
+            limpiar_pantalla();
             informe_productos(ptr_productos, ptr_num_productos);
             break;
         }
@@ -86,7 +90,23 @@ void limpiar_pantalla(){
     #endif
 }
 
-void imprimir_producto(Producto *productos, int indice){
+int obtener_clave()
+{
+    int clave;
+    while (1){
+        printf("Introduzca la clave del producto (\"-1\" para Salir)\n");
+        if (scanf("%d", &clave) != 1 || (clave < -1)){
+            printf("Introduzca un numero valido\n\n");
+            while (getchar() != '\n');
+            continue;
+        }
+        break;
+    }
+    return clave;
+}
+
+void imprimir_producto(Producto *productos, int indice)
+{
     printf("\n\n\n\t\tNumero de producto: %d\n", indice+1);
     printf("\t\tClave del producto: %d\n", productos[indice].clave);
     printf("\t\tDescripcion del producto: %s\n", productos[indice].descrip);
@@ -96,9 +116,9 @@ void imprimir_producto(Producto *productos, int indice){
     return;
 }
 
-void introducir_datos(Producto *productos, int *num_productos){
+void introducir_datos(Producto *productos, int *num_productos)
+{
     int op1 = 0, op2 = 0, i = 0;
-
     while (*num_productos < MAX_PRODUCTOS){
         while (1){// Ciclo para verificar si la informacion es correcta
             printf("Introduzca los datos solicitados\n");
@@ -192,30 +212,16 @@ void introducir_datos(Producto *productos, int *num_productos){
     }
 }
 
-void venta_producto(Producto *productos, int *num_productos){
-    // Datos: clave, cantidad vendida
+void venta_producto(Producto *productos, int *num_productos)
+{
     int clave, venta, nueva_exist = 0;
     int i = 0, aux = 0, pos = 0, op1;
     while(1){
         aux = 1;
-        while (1){
-            printf("Introduzca la clave del producto (\"-1\" para Salir)\n");
-            if (scanf("%d", &clave) != 1){
-                printf("Introduzca un numero valido\n\n");
-                while (getchar() != '\n');
-                continue;
-            }
-            if (clave < -1){
-                printf("Introduzca un numero positivo\n\n");
-                continue;
-            }
-            break;
-        }
+        clave = obtener_clave();
         if(clave == -1){
             break;
         }
-        informe_productos(productos, num_productos);
-
         for (i = 0; i < *num_productos; i++) {
             if (productos[i].clave == clave) {
                 aux = 0;
@@ -224,57 +230,140 @@ void venta_producto(Producto *productos, int *num_productos){
             }
         }
         if(aux == 1){
-            printf("No existe el producto\n");
+            printf("No existe el producto\n\n\n");
             continue;
         }
         while (1){
             printf("Introduzca la cantidad vendida\n");
-            if (scanf("%d", &venta) != 1){
+            if (scanf("%d", &venta) != 1 || (venta < 0)){
                 printf("Introduzca un numero valido\n\n");
                 while (getchar() != '\n');
-                continue;
-            }
-            if (venta < 0){
-                printf("Introduzca un numero positivo\n\n");
                 continue;
             }
             break;
         }
         nueva_exist = productos[pos].exist - venta;
         if(nueva_exist < productos[pos].min_exist){
-            printf("La nueva existencia esta por debajo del minimo\n");
+            printf("La nueva existencia esta por debajo del minimo\n\n\n");
             continue;
         }else{
             productos[pos].exist = nueva_exist;
+            imprimir_producto(productos, pos);
             printf("Se realizo la venta correctamente\n");
         }
         while (1){
             printf("¿Desea realizar otra venta?(1.- Si 2.- No)\n");
-            if (scanf("%d", &op1) != 1){
-                printf("Introduzca un numero valido\n\n");
+            if (scanf("%d", &op1) != 1 || (op1 < 0)){
+                printf("Introduzca un numero valido\n\n\n");
                 while (getchar() != '\n');
-                continue;
-            }
-            if (op1 < 0){
-                printf("Introduzca un numero positivo\n\n");
                 continue;
             }
             break;
         }
         if(op1 == 2){
+            limpiar_pantalla();
             break;
         }
-
     }
 }
 
 void restock_producto(Producto *productos, int *num_productos)
 {
-
+    int clave, compra, i, aux, pos, op1;
+    while(1){
+        aux = 1;
+        clave = obtener_clave();
+        if(clave == -1){
+            break;
+        }
+        for (i = 0; i < *num_productos; i++) {
+            if (productos[i].clave == clave) {
+                aux = 0;
+                pos = i;
+                break;
+            }
+        }
+        if(aux == 1){
+            printf("No existe el producto\n\n\n");
+            continue;
+        }
+        while (1){
+            printf("Introduzca la cantidad comprada\n");
+            if (scanf("%d", &compra) != 1 || (compra < 0)){
+                printf("Introduzca un numero valido\n\n\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            break;
+        }
+        productos[pos].exist += compra;
+        printf("\n\nCompra realizada correctamente\n\n");
+        imprimir_producto(productos, pos);
+        while (1){
+            printf("¿Desea realizar otra compra?(1.- Si 2.- No)\n");
+            if (scanf("%d", &op1) != 1 || (op1 < 0)){
+                printf("Introduzca un numero valido\n\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            break;
+        }
+        if(op1 == 2){
+            limpiar_pantalla();
+            break;
+        }
+    }
 }
 
 void actualizar_precio_producto(Producto *productos, int *num_productos)
 {
+    int clave, aux, i, pos, aumento, op1;
+    float actual = 0;
+    while(1){
+        aux = 1;
+        clave = obtener_clave();
+        if(clave == -1){
+            break;
+        }
+        for (i = 0; i < *num_productos; i++) {
+            if (productos[i].clave == clave) {
+                aux = 0;
+                pos = i;
+                break;
+            }
+        }
+        if(aux == 1){
+            printf("No existe el producto\n\n\n");
+            continue;
+        }
+        while (1){
+            printf("Introduzca el porcentaje de aumento\n");
+            if (scanf("%d", &aumento) != 1 || (aumento < 0)){
+                printf("Introduzca un numero valido\n\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            break;
+        }
+        actual = productos[pos].precio_uni * (1 + (aumento/100.0));
+        productos[pos].precio_uni = actual;
+        imprimir_producto(productos, pos);
+        printf("\n\nAumento realizado correctamente\n\n");
+        printf("Nuevo precio: %f\n", productos[pos].precio_uni);
+        while (1){
+            printf("¿Desea realizar otro aumento?(1.- Si 2.- No)\n");
+            if (scanf("%d", &op1) != 1 || (op1 < 0)){
+                printf("Introduzca un numero valido\n\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            break;
+        }
+        if(op1 == 2){
+            limpiar_pantalla();
+            break;
+        }
+    }
 }
 
 void informe_productos(Producto *productos, int *num_productos)
@@ -282,10 +371,17 @@ void informe_productos(Producto *productos, int *num_productos)
     int i = 0, op1;
     while(1){
         for (i = 0; i < *num_productos; i++){
-            imprimir_producto(productos, *num_productos);
+            imprimir_producto(productos, i);
         }
-        printf("\"-1\" para Salir\n");
-        scanf("%d", &op1);
+        while (1){
+            printf("\"-1\" para Salir\n");   
+            if (scanf("%d", &op1) != 1 || (op1 < -1)){
+                printf("Introduzca un numero valido\n\n");
+                while (getchar() != '\n');
+                continue;
+            }
+            break;
+        }
         if(op1 == -1){
             break;
         }
