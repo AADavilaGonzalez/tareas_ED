@@ -1,15 +1,11 @@
-# Archivos y Directorios de Entorno
-.vscode
-.DS_Store
+#Ignorar todo por default
+*
 
-# Ejecutables
-*.exe
-*.app
-
-# Archivos Generados
-*.txt
-*.zip
-*.tar
-*.7z
-
-# Lista Blanca
+#Lista de archivos trackeables
+!.gitignore
+!*/
+!*.c
+!*.h
+!*.md
+!*.pdf
+!*.drawio
