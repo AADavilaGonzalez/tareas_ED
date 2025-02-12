@@ -4,7 +4,7 @@ Dejen sus matriculas aca abajo por sus nombres y matriculas
 aca abajo por si se ocupan despues
 
 - Aldo Adrian Davila Gonzalez 1994122
-- 
+- Alexis Ibarra Rodriguez 2094647
 - 
 
 **Recuerden incluir diagramas de flujo para todo codigo que hagan**
