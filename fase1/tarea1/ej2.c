@@ -50,7 +50,7 @@ int main(void)
                 while (getchar() != '\n');
                 continue;
             }
-            if (op1 <= 0 || op1 > 6)
+            if (op1 < 0 || op1 > 6)
             {
                 printf("Introduzca un numero positivo\n\n");
                 continue;
