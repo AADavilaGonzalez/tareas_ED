@@ -47,8 +47,7 @@ int main(void)
             if (scanf("%d", &op1) != 1)
             {
                 printf("Introduzca un numero valido\n\n");
-                while (getchar() != '\n')
-                    ;
+                while (getchar() != '\n');
                 continue;
             }
             if (op1 <= 0 || op1 > 6)
