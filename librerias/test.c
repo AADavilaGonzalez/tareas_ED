@@ -1,6 +1,8 @@
-
+#define EDLIB_MAIN
+#include "edlib.h"
 
 int main(void) {
-    printf("%Lf\n", LDBL_MAX/2-LDBL_MAX/2);
+    char c = leer_caracter();
+    printf("%c\n", c);
     return 0;
 }
