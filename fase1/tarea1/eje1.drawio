@@ -1,9 +1,64 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" version="26.0.12">
   <diagram name="Page-1" id="MXzUVoiyVlAlxQEYChi9">
-    <mxGraphModel>
+    <mxGraphModel dx="861" dy="420" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Y0ORDH24EpjtyIVhWLws-1" target="Y0ORDH24EpjtyIVhWLws-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-1" value="Inicio" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="113.59" y="20" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Y0ORDH24EpjtyIVhWLws-5">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="158.6589655172414" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-5" value="int plazas[4][3], rechazados[100][2], contador, *ap = plazas[0]" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="46.09" y="100" width="225" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Y0ORDH24EpjtyIVhWLws-14">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="162.38310344827605" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-14" value="registrar(plazas, ap)" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=10;" vertex="1" parent="1">
+          <mxGeometry x="83.59" y="180" width="157.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-20" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Y0ORDH24EpjtyIVhWLws-18" target="Y0ORDH24EpjtyIVhWLws-19">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-18" value="contador = pedidos(plazas, rechazados)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="23.590000000000003" y="240" width="275.01" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-22" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Y0ORDH24EpjtyIVhWLws-19" target="Y0ORDH24EpjtyIVhWLws-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-19" value="&lt;div&gt;&amp;nbsp; &amp;nbsp; resultado(plazas, rechazados, contador, ap);&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=10;" vertex="1" parent="1">
+          <mxGeometry x="20" y="300" width="282.18" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-24" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Y0ORDH24EpjtyIVhWLws-21" target="Y0ORDH24EpjtyIVhWLws-23">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-21" value="return 0" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="114.84" y="370" width="92.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-23" value="Fin" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="103.59" y="430" width="115" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="Y0ORDH24EpjtyIVhWLws-25" target="Y0ORDH24EpjtyIVhWLws-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-25" value="registrar(plazas, ap)" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;size=10;" vertex="1" parent="1">
+          <mxGeometry x="500" y="10" width="157.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-26" value="int pedido, destino, vuelo, pasajes, contador = 0&lt;div&gt;char respuesta[2]&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="466.25" y="80" width="225" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Y0ORDH24EpjtyIVhWLws-29" value="respuesta != &#39;S&#39; &amp;amp;&amp;amp; respuesta != &#39;s&#39; &amp;amp;&amp;amp; respuesta != &#39;N&#39; &amp;amp;&amp;amp; respuesta != &#39;n&#39;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="370.32" y="150" width="416.87" height="160" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
