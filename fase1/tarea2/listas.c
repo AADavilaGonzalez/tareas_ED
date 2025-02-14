@@ -105,17 +105,18 @@ Nodo_D* lista_doble_insertar_final(Lista_D* lista, dato_t dato) {
 void lista_doble_eliminar_inicio(Lista_D* lista) {
     Nodo_D* basura=*lista;
     *lista=(*lista)->sig;
-    (*lista)->prev = NULL;
+    if(*lista!=NULL) {
+        (*lista)->prev = NULL;
+    }
     free(basura);
     return *lista;
 }
 
 void lista_doble_eliminar_fin(Lista_D* lista) {
     if((*lista)->sig!=NULL) {
-        Nodo_D* basura=*lista, *previo;
+        Nodo_D* basura=*lista;
         while(basura->sig!=NULL) basura=basura->sig;
-        previo=basura->prev;
-        previo->sig=NULL;
+        basura->prev->sig=NULL;
         free(basura);
         return;
     }
