@@ -172,8 +172,20 @@ static long double validar_float_en_rango(long double min, long double max) {
 #define validar_float_min(min) (validar_float_en_rango(min, LDBL_MAX))
 #define validar_float_max(max) (validar_float_en_rango(-LDBL_MAX, max))
 
+static char leer_caracter(void) {
+    fputs(_edlib_prompt, stdout);
+    int c = fgetc(stdin);
+    if(c!='\n') flush();
+    return c;
+}
+
+/*Lee un string de caracteres al arreglo de caracteres apuntado por buffer. La funcion debe
+saber la cantidad de caracteres 'lbuffer' que puede almacenar el buffer. lbuffer debe ser como
+minimo de 1 caracter de longitud ya que la funcion podra leer a lo mas lbuffer-1 caracteres
+de entrada ya que debe almacenar '\0' en el ultimo lugar para formar un string valido. Los
+valores lmin y lmax controlan la cantidad de caracteres que se leen*/
 static size_t leer_string_con_longitud(char* buffer, size_t lmin, size_t lmax ,size_t lbuffer) {
-    if(!buffer || lbuffer==0) return 0;
+    if(!buffer || lbuffer < 2) return 0;
     int c; size_t l;
     if(lmax >= lbuffer) lmax = lbuffer-1;
     while(true) {
