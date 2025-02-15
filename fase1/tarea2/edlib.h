@@ -73,6 +73,14 @@ static inline const char* edlib_get_prompt(void) {
 #define en_rango(val, min, max) ((val) >= (min) && (val) <= (max))
 #define char_a_int(c) ((int)(c-'0'))
 
+static inline void clear(void) {
+    #ifdef _WIN32
+    system("cls");
+    #else
+    system("clear");
+    #endif
+}
+
 static void leer_hasta(char delimitador, FILE* flujo) {
     int c; while((c=fgetc(flujo))!=delimitador && c!=EOF);
     return;
