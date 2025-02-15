@@ -245,7 +245,7 @@ void lista_doble_circ_eliminar_inicio(Lista_D* lista) {
         Nodo_D* siguiente = (*lista)->sig;
         (*lista)->prev->sig=siguiente;
         siguiente->prev=(*lista)->prev;
-        free(lista);
+        free(*lista);
         *lista=siguiente;
     } else {
         free(*lista);
@@ -467,19 +467,19 @@ void submenu_lista_doble(void) {
 void submenu_lista_doble_circ(void) {
     Lista_D lista = NULL;
     int opc, i;
-    static const char texto_submenu_ls[]=
+    static const char texto_submenu_ldc[]=
     "LISTA CIRCULAR DOBLEMENTE ENCADENADA\n"
     "1) insertar inicio\n"
     "2) insertar fin\n"
     "3) eliminar inicio\n"
     "4) eliminar fin\n"
-    "5) desplazar hacia delante\n";
+    "5) desplazar hacia delante\n"
     "6) desplazar hacia atras\n"
     "7) salir\n\n";
     do {
         clear();
         print_lista(&lista, print_dato); putchar('\n');
-        fputs(texto_submenu_ls, stdout);
+        fputs(texto_submenu_ldc, stdout);
         fputs("Opcion", stdout);opc=validar_int_en_rango(1,7);
         switch(opc) {
         case 1:
