@@ -70,8 +70,19 @@ static inline const char* edlib_get_prompt(void) {
     return (const char*)_edlib_prompt;
 }
 
+#define max(a,b) ((a)>(b) ? (a):(b))
+#define min(a,b) ((a)<(b) ? (a):(b))
 #define en_rango(val, min, max) ((val) >= (min) && (val) <= (max))
 #define char_a_int(c) ((int)(c-'0'))
+
+static inline void clear(void) {
+    #ifdef _WIN32
+    system("cls");
+    #else
+    system("clear");
+    #endif
+    return;
+}
 
 static void leer_hasta(char delimitador, FILE* flujo) {
     int c; while((c=fgetc(flujo))!=delimitador && c!=EOF);
@@ -96,6 +107,8 @@ static long long validar_int_en_rango(long long min, long long max) {
         if(!isdigit(c) && c!='+' && c!='-') {
             if(c==EOF) return (min/2+max/2);
             if(c!='\n') flush();
+            fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
+            fputc('\n', EDLIB_SALIDA_ERROR);
             continue;
         }
         ungetc(c, stdin);
@@ -125,6 +138,8 @@ static unsigned long long validar_uint_en_rango( unsigned long long min, unsigne
         if(!isdigit(c) && c!='+') {
             if(c==EOF) return (min/2+max/2);
             if(c!='\n') flush();
+            fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
+            fputc('\n', EDLIB_SALIDA_ERROR);
             continue;
         }
         ungetc(c, stdin);
@@ -153,6 +168,8 @@ static long double validar_float_en_rango(long double min, long double max) {
         if(!isdigit(c) && c!='+' && c!='-' && c!='.') {
             if(c==EOF) return (min/2+max/2);
             if(c!='\n') flush();
+            fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
+            fputc('\n', EDLIB_SALIDA_ERROR);
             continue;
         }
         ungetc(c, stdin);
@@ -195,13 +212,10 @@ static size_t leer_string_con_longitud(char* buffer, size_t lmin, size_t lmax ,s
             buffer[l]=c;
             c=fgetc(stdin);
         }
-        if(!en_rango(l, lmin, lmax) && c!=EOF) {
-            fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
-            fputc('\n', EDLIB_SALIDA_ERROR);
-            if(c!='\n') flush();
-            continue;
-        }
-        break;
+        if(en_rango(l, lmin, lmax) || c==EOF) break;
+        if(c!='\n') flush();
+        fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
+        fputc('\n', EDLIB_SALIDA_ERROR);
     }
     buffer[l]='\0';
     #ifdef EDLIB_RESETEAR_ERROR
