@@ -90,7 +90,7 @@ Nodo_S *obtener_final(Nodo_S *actual){
     return actual;
 }
 
-Nodo_S *particion(Nodo_S *lista, Nodo_S *final, Nodo_S **nuevalista, Nodo_S **nuevofinal){
+Nodo_S *particion(Nodo_S *lista, Nodo_S *final, Lista_S *nuevalista, Lista_S *nuevofinal){
     Nodo_S *pivote = final;
     Nodo_S *anterior = NULL;
     Nodo_S *actual = lista;
@@ -160,8 +160,6 @@ Nodo_S *invertir_lista (Nodo_S *lista){
     }
     return anterior;
 }
-
-
 
 #define EDLIB_MAIN
 #include "edlib.h"
