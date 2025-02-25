@@ -2,7 +2,7 @@
 #include "edlib.h"
 
 int main(void) {
-    char c = leer_caracter();
-    printf("%c\n", c);
-    return 0;
+    const char * s1 = "Hello";
+    const char * s2 = "World";
+    println(s1, s2, "Pija", "Cocos", "Bulldog Frances");
 }

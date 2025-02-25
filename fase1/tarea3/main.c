@@ -19,7 +19,7 @@ Nodo_S* lista_simple_insertar_inicio(Lista_S* lista, dato_t dato) {
         nuevo->dato=dato;
         nuevo->sig=*lista;
         *lista = nuevo;
-    };
+    }
     return nuevo;
 }
 
