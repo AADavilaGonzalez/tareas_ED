@@ -1,7 +1,7 @@
 #Ignorar todo por default
 *
 
-#Lista de tipos de archivos trackeables
+#Tipos de archivos trackeables
 !.gitignore
 !*/
 !*.c
@@ -10,5 +10,9 @@
 !*.pdf
 !*.drawio
 
-#Lista de excepciones
+#Lista Blanca
 !presentacion/link.txt
+
+#Lista Negra
+*test.*
+*prueba.*
