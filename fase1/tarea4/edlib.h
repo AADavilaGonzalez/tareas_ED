@@ -1,5 +1,5 @@
-#ifndef EDLIB_H
-#define EDLIB_H
+#ifndef _EDLIB_H
+#define _EDLIB_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -40,7 +40,12 @@ unidades importen las variables desde la unida principal*/
     extern char _edlib_prompt[16];
 #endif
 
-static inline bool edlib_set_mensaje_error(const char* str) {
+#define max(a,b) ((a)>(b) ? (a):(b))
+#define min(a,b) ((a)<(b) ? (a):(b))
+#define en_rango(val, min, max) ((val) >= (min) && (val) <= (max))
+#define char_a_int(c) ((int)(c-'0'))
+
+static inline bool edlib_set_msj_error(const char* str) {
     size_t longitud = strlen(str);
     if(longitud > sizeof(_edlib_msj_error)-1) {
         strncpy(_edlib_msj_error, str, sizeof(_edlib_msj_error)-1);
@@ -51,9 +56,18 @@ static inline bool edlib_set_mensaje_error(const char* str) {
     return true;
 }
 
-static inline const char* edlib_get_mensaje_error(void) {
+static inline const char* edlib_get_msj_error(void) {
     return (const char*)_edlib_msj_error;
 }
+
+static inline void edlib_print_msj_error(void) {
+    if(_edlib_msj_error[0]!='\0') {
+        fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
+        fputc('\n', EDLIB_SALIDA_ERROR);
+    }
+    return;
+}
+#define edlib_msj_error edlib_print_msj_error()
 
 static inline bool edlib_set_prompt(const char* str) {
     size_t longitud = strlen(str);
@@ -70,10 +84,11 @@ static inline const char* edlib_get_prompt(void) {
     return (const char*)_edlib_prompt;
 }
 
-#define max(a,b) ((a)>(b) ? (a):(b))
-#define min(a,b) ((a)<(b) ? (a):(b))
-#define en_rango(val, min, max) ((val) >= (min) && (val) <= (max))
-#define char_a_int(c) ((int)(c-'0'))
+static inline void edlib_print_prompt(void) {
+    fputs(_edlib_prompt, stdout);
+    return;
+}
+#define edlib_prompt edlib_print_prompt()
 
 static inline void clear(void) {
     #ifdef _WIN32
@@ -104,13 +119,12 @@ static long long validar_int_en_rango(long long min, long long max) {
     char buffer[32], *ptr;
     int c; long long num;
     while(true) {
-        fputs(_edlib_prompt, stdout);
+        edlib_prompt;
         while(isspace(c=fgetc(stdin)) && c!='\n' && c!=EOF);
         if(!isdigit(c) && c!='+' && c!='-') {
             if(c==EOF) return (min/2+max/2);
             if(c!='\n') flush();
-            fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
-            fputc('\n', EDLIB_SALIDA_ERROR);
+            edlib_msj_error;
             continue;
         }
         ungetc(c, stdin);
@@ -118,11 +132,10 @@ static long long validar_int_en_rango(long long min, long long max) {
         if(!caracter_en_string(buffer, '\n')) flush();
         num = strtoll(buffer, &ptr, 10);
         if(ptr!=buffer && isspace(*ptr) && en_rango(num, min, max)) break;
-        fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
-        fputc('\n', EDLIB_SALIDA_ERROR);
+        edlib_msj_error;
     }
     #ifdef EDLIB_RESETEAR_ERROR
-    edlib_set_mensaje_error("");
+    edlib_set_msj_error("");
     #endif
     return num;
 }
@@ -140,13 +153,12 @@ static unsigned long long validar_uint_en_rango( unsigned long long min, unsigne
     char buffer[32], *ptr;
     int c; unsigned long long num;
     while(true) {
-        fputs(_edlib_prompt, stdout);
+        edlib_prompt;
         while(isspace(c=fgetc(stdin)) && c!='\n' && c!=EOF);
         if(!isdigit(c) && c!='+') {
             if(c==EOF) return (min/2+max/2);
             if(c!='\n') flush();
-            fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
-            fputc('\n', EDLIB_SALIDA_ERROR);
+            edlib_msj_error;
             continue;
         }
         ungetc(c, stdin);
@@ -154,11 +166,10 @@ static unsigned long long validar_uint_en_rango( unsigned long long min, unsigne
         if(!caracter_en_string(buffer, '\n')) flush();
         num = strtoull(buffer, &ptr, 10);
         if(ptr!=buffer && isspace(*ptr) && en_rango(num, min, max)) break;
-        fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
-        fputc('\n', EDLIB_SALIDA_ERROR);
+        edlib_msj_error;
     }
     #ifdef EDLIB_RESETEAR_ERROR
-    edlib_set_mensaje_error("");
+    edlib_set_msj_error("");
     #endif
     return num;
 }
@@ -175,13 +186,12 @@ static long double validar_float_en_rango(long double min, long double max) {
     char buffer[48], *ptr;
     int c; long double num;
     while(true) {
-        fputs(_edlib_prompt, stdout);
+        edlib_prompt;
         while(isspace(c=fgetc(stdin)) && c!='\n' && c!=EOF);
         if(!isdigit(c) && c!='+' && c!='-' && c!='.') {
             if(c==EOF) return (min/2+max/2);
             if(c!='\n') flush();
-            fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
-            fputc('\n', EDLIB_SALIDA_ERROR);
+            edlib_msj_error;
             continue;
         }
         ungetc(c, stdin);
@@ -189,11 +199,10 @@ static long double validar_float_en_rango(long double min, long double max) {
         if(!caracter_en_string(buffer,'\n')) flush();
         num = strtold(buffer, &ptr);
         if(ptr!=buffer && isspace(*ptr) && en_rango(num, min, max)) break;
-        fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
-        fputc('\n', EDLIB_SALIDA_ERROR);
+        edlib_msj_error;
     }
     #ifdef EDLIB_RESETEAR_ERROR
-    edlib_set_mensaje_error("");
+    edlib_set_msj_error("");
     #endif
     return num;
 }
@@ -224,20 +233,19 @@ static size_t leer_string_con_longitud(char* buffer, size_t lmin, size_t lmax ,s
     int c; size_t l;
     if(lmax >= lbuffer) lmax = lbuffer-1;
     while(true) {
-        fputs(_edlib_prompt, stdout);
-        while(isspace(c=fgetc(stdin)));
+        edlib_prompt;
+        while(isspace(c=fgetc(stdin)) && c!='\n');
         for(l=0; l<lbuffer && c!='\n' && c!=EOF; ++l) {
             buffer[l]=c;
             c=fgetc(stdin);
         }
         if(en_rango(l, lmin, lmax) || c==EOF) break;
         if(c!='\n') flush();
-        fputs(_edlib_msj_error, EDLIB_SALIDA_ERROR);
-        fputc('\n', EDLIB_SALIDA_ERROR);
+        edlib_msj_error;
     }
     buffer[l]='\0';
     #ifdef EDLIB_RESETEAR_ERROR
-    edlib_set_mensaje_error("");
+    edlib_set_msj_error("");
     #endif
     return l;
 }
@@ -274,5 +282,7 @@ static inline void _println(const char* strings[], size_t n) {
 #define println(...) (\
     _println((const char*[]){__VA_ARGS__},\
     sizeof((const char*[]){__VA_ARGS__})/sizeof(char*)))
+
+#define endl fputc('\n', stdout);
 
 #endif
