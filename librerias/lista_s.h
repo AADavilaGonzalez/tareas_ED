@@ -97,4 +97,15 @@ void lista_s_print(Lista_S* lista, void (*print_elem)(dato_t)) {
     fputc(']', stdout);
     return;
 }
+
+void lista_s_destruir(Lista_S* lista) {
+    Nodo_S *ptr = lista->cabeza, *basura;
+    while(ptr!=NULL) {
+        basura=ptr;
+        ptr=ptr->sig;
+        free(basura);
+    }
+    free(lista);
+    return;
+}
 #endif
