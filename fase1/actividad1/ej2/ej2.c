@@ -52,7 +52,7 @@ char pilaQuitar(Pila_S *pila)
     pila->frente = pila->frente->sig;
 
     if (pila->frente == NULL)
-    pila->final = NULL;
+        pila->final = NULL;
 
     free(temporal);
     return valor;
