@@ -10,13 +10,13 @@ typedef struct pila
     Nodo_S *final;
 } Pila_S;
 
-void inicializarPila(Pila_S *cola)
+void inicializarPila(Pila_S *pila)
 {
-    cola->frente = NULL;
-    cola->final = NULL;
+    pila->frente = NULL;
+    pila->final = NULL;
 }
 
-void pilaInsertar(Pila_S *cola, char valor)
+void pilaInsertar(Pila_S *pila, char valor)
 {
     Nodo_S *nuevo;
 
@@ -30,51 +30,32 @@ void pilaInsertar(Pila_S *cola, char valor)
     nuevo->dato = valor;
     nuevo->sig = NULL;
 
-    if (cola->final == NULL)
+    if (pila->final == NULL)
     {
-        cola->final = nuevo;
-        cola->frente = nuevo;
+        pila->final = nuevo;
+        pila->frente = nuevo;
     }
     else
     {
-        nuevo->sig = cola->frente;
-        cola->frente = nuevo;
+        nuevo->sig = pila->frente;
+        pila->frente = nuevo;
     }
 }
 
-char pilaQuitar(Pila_S *cola)
+char pilaQuitar(Pila_S *pila)
 {
     Nodo_S *temporal;
     int valor;
 
-    temporal = cola->frente;
+    temporal = pila->frente;
     valor = temporal->dato;
-    cola->frente = cola->frente->sig;
+    pila->frente = pila->frente->sig;
 
-    if (cola->frente == NULL)
-        cola->final = NULL;
+    if (pila->frente == NULL)
+    pila->final = NULL;
 
     free(temporal);
     return valor;
-}
-
-void imprimirPila(Pila_S *cola)
-{
-    Nodo_S *actual;
-
-    if (cola -> frente == NULL)
-    {
-        printf("La cola esta vacia\n");
-        return;
-    }
-
-    actual = cola->frente;
-    while (actual != NULL)
-    {
-        printf("%d ", actual->dato);
-        actual = actual->sig;
-    }
-    printf("\n\n");
 }
 
 int main()
