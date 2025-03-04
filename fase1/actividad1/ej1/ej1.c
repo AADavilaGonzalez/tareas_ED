@@ -145,15 +145,12 @@ void eliminar_nodos_mayores(Lista_S *lista, int num){
 
 void mostrar_lista(Lista_S *lista){
     Nodo_S *actual = lista->cabeza;
-    if(actual == NULL){
-        printf("Lista -> ");
-    }else{
-        printf("Lista -> ");
+    printf("Lista -> ");
+    if(actual != NULL){
         while(actual != NULL){
             printf("%.2f -> ", actual->dato);
             actual = actual->sig;
         }
-        printf("\n");
     }
     printf("NULL\n");
     return;
