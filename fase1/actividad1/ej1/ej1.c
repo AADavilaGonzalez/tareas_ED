@@ -103,7 +103,7 @@ int main(void){
                     break;
             case 4:
                 lista_s_destruir(lista);
-                return 0;
+                break;
         }
         if(op1 == 4){
             break;
