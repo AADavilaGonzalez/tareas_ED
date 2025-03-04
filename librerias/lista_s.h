@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define dato_t double
+#define dato_t int
 
 typedef struct nodo_s {
     struct nodo_s* sig;

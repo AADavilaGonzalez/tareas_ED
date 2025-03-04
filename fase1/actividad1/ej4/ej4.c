@@ -3,7 +3,7 @@
 #include <string.h>
 #define EDLIB_MAIN
 #include "edlib.h"
-#include "lista_s_contacto.h"
+#include "lista_s.h"
 
 Lista_S* entrada_de_datos(void) {
     println("Sistema de antivirus de ACME S.R.L",
