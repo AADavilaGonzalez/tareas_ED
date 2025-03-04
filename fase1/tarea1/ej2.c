@@ -182,8 +182,7 @@ void introducir_datos(Producto *productos, int *num_productos)
                 printf("¿La informacion introducida es correcta? (1.- Si | 2.- No)\n");
                 if (scanf("%d", &op1) != 1 || (op1 != 1 && op1 != 2)){
                     printf("Introduzca un numero valido\n\n");
-                    while (getchar() != '\n')
-                        ;
+                    while (getchar() != '\n');
                     continue;
                 }
                 break;
