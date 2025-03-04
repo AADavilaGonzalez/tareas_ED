@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <time.h>
-#include "librerias/lista_s.h"
+#include "lista_s.h"
 
 void limpiar_pantalla();
 void eliminar_nodos_mayores(Lista_S *lista, int num);
