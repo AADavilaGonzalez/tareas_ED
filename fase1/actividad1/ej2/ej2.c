@@ -7,15 +7,15 @@
 typedef struct pila
 {
     Nodo_S *frente;
-    Nodo_S *final;
 } Pila_S;
 
+// Inicializa la pila estableciendo el puntero frente a NULL
 void inicializarPila(Pila_S *pila)
 {
     pila->frente = NULL;
-    pila->final = NULL;
 }
 
+// Inserta el elemento a la cima de la pila
 void pilaInsertar(Pila_S *pila, char valor)
 {
     Nodo_S *nuevo;
@@ -29,32 +29,25 @@ void pilaInsertar(Pila_S *pila, char valor)
 
     nuevo->dato = valor;
     nuevo->sig = NULL;
-
-    if (pila->final == NULL)
-    {
-        pila->final = nuevo;
-        pila->frente = nuevo;
-    }
-    else
-    {
-        nuevo->sig = pila->frente;
-        pila->frente = nuevo;
-    }
+    nuevo->sig = pila->frente;
+    pila->frente = nuevo;
 }
 
+// Quita y retorna el elemento que esta en la cima de la pila si no esta vacia
 char pilaQuitar(Pila_S *pila)
 {
     Nodo_S *temporal;
-    int valor;
+    char valor = 0;
 
     temporal = pila->frente;
-    valor = temporal->dato;
-    pila->frente = pila->frente->sig;
-
-    if (pila->frente == NULL)
-        pila->final = NULL;
-
-    free(temporal);
+    if (temporal == NULL)
+        printf("Pila vacia, no se pueden quitar mas elementos\n");
+    else
+    {
+        valor = temporal->dato;
+        pila->frente = pila->frente->sig;
+        free(temporal);
+    }
     return valor;
 }
 
@@ -71,8 +64,9 @@ int main()
 
     printf("Introduce una frase: ");
     fgets(frase, 40, stdin);
-    frase[strcspn(frase, "\n")] = '\0';
+    frase[strcspn(frase, "\n")] = '\0'; // Elimina el '\n' incluido por el fgets
 
+    // Itera sobre la cadena y agrega caracter por caracter a la pila y a la lista
     i = 0;
     while (frase[i] != '\0')
     {
@@ -82,6 +76,7 @@ int main()
     }
     frase_longitud = i;
 
+    // Si todos los caracteres extraidos de ambas son iguales al compararse entonces es palindroma
     i = 0;
     while (i < frase_longitud && palindroma)
     {
