@@ -37,9 +37,7 @@ void invertir_cadena(char* cadena) {
 Lista_S* antivirus(Lista_S* lista, unsigned int dia) {
     Lista_S* correciones = lista_s_crear();
     Nodo_S* ptr=lista->cabeza;
-    //printf("\nTamano: %u\n", lista->tamano);
     for(size_t i=1; i<= lista->tamano; ptr=ptr->sig, ++i) {
-        //printf("%u\n", i); fflush(stdout);
         if(i%dia==0) {
             invertir_cadena(ptr->dato.nombre);
             lista_s_insertar_fin(correciones, ptr->dato);
@@ -55,6 +53,7 @@ void print_contactos(Lista_S* lista) {
         printf("Numero: %lu\n\n", ptr->dato.numero);
         ptr=ptr->sig;
     }
+    return;
 }
 
 int main(void) {

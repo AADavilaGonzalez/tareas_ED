@@ -19,7 +19,7 @@ void desencriptar(const char* orig, char* dest) {
             if(dir==ADELANTE) {
                 contador_parentesis=1;
                 while(contador_parentesis!=0 && *orig!='\0') {
-                    orig+=dir;
+                    avanzar(orig, dir);
                     if(*orig=='(') ++contador_parentesis;
                     else if(*orig==')') --contador_parentesis;
                 }
@@ -35,7 +35,7 @@ void desencriptar(const char* orig, char* dest) {
             if(dir==ATRAS) {
                 contador_parentesis=1;
                 while(contador_parentesis!=0 && *orig!='\0') {
-                    orig+=dir;
+                    avanzar(orig, dir);
                     if(*orig==')') ++contador_parentesis;
                     else if(*orig=='(') --contador_parentesis;
                 }
@@ -60,8 +60,8 @@ void desencriptar(const char* orig, char* dest) {
 #define STR_MAX 64
 
 int main(void) {
-    char entrada[64];
-    char salida[64];
+    char entrada[STR_MAX];
+    char salida[STR_MAX];
     println("Desencriptacion de strings alrevezados con parentesis:");
     print("Entrada"); leer_string(entrada, STR_MAX);
     desencriptar(entrada, salida);
