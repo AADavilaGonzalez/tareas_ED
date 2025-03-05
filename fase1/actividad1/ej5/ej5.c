@@ -10,11 +10,23 @@ typedef enum {
 #define avanzar(ptr, dir) (ptr+=dir)
 #define voltear(dir) (dir*=-1)
 
+/*Algoritmo para desencriptar el mensaje alrevezzado por parentesis...
+orig: ubicacion del mensaje original
+dest: donde se guardara el mensaje desencriptado*/
 void desencriptar(const char* orig, char* dest) {
+    /*Pila para almacenar las direcciones a las que se va a regresar
+    despues de procesar los contenidos de un parentesis entero*/
     Pila_D* pila_salto = pila_d_crear();
     size_t contador_parentesis;
     Direccion dir = ADELANTE;
     while(*orig!='\0') {
+        /*Si estamos en un parentesis abierto y vamos hacia adelante
+        recorremos hasta hasta el parentesis cerrado correspondiente
+        y guardamos la posicion en la que termina. Volteamos la 
+        direccion de lectura para leer en direccion contrarea. Si
+        llegamos a un parentesis abierto en reversa significa que
+        hemos recorrido un parentesis entero por lo tanto saltamos
+        a la direccion alamacenada mas reciente*/
         if(*orig=='(') {
             if(dir==ADELANTE) {
                 contador_parentesis=1;
@@ -31,6 +43,9 @@ void desencriptar(const char* orig, char* dest) {
                 orig = pila_d_pop(pila_salto);
             }
         }
+        /*Se hace lo mismo con el parentesis cerrado pero volteando
+        las direcciones que le indican al algorimo cuando hacer
+        cada cosa.*/
         else if(*orig==')') {
             if(dir==ATRAS) {
                 contador_parentesis=1;
@@ -47,6 +62,7 @@ void desencriptar(const char* orig, char* dest) {
                 orig = pila_d_pop(pila_salto);
             }
         }
+        /*Si la entrada no es un parentesis se anade a la salida*/
         else {
             *dest=*orig;
             ++dest;

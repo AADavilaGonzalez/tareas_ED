@@ -5,6 +5,8 @@
 #include "edlib.h"
 #include "lista_s.h"
 
+/*Funcion para generar la lista encadenada a partir de los
+datos introducidos por el usuario*/
 Lista_S* entrada_de_datos(void) {
     println("Sistema de antivirus de ACME S.R.L",
             "Introduzca la lista de contactos registrados");
@@ -20,6 +22,8 @@ Lista_S* entrada_de_datos(void) {
     return contactos;
 }
 
+/*Funcion secilla para invertir una cadena
+utilizando punteros*/
 void invertir_cadena(char* cadena) {
     size_t longitud = strlen(cadena);
     if(longitud==0 || longitud==1) return;
@@ -34,9 +38,12 @@ void invertir_cadena(char* cadena) {
     return;
 }
 
+/*Implenta el algoritmo especificado en la redaccion
+del problema*/
 Lista_S* antivirus(Lista_S* lista, unsigned int dia) {
     Lista_S* correciones = lista_s_crear();
     Nodo_S* ptr=lista->cabeza;
+    //Recorremos todos los emelentos de la lista con un indice
     for(size_t i=1; i<= lista->tamano; ptr=ptr->sig, ++i) {
         if(i%dia==0) {
             invertir_cadena(ptr->dato.nombre);
@@ -59,8 +66,8 @@ void print_contactos(Lista_S* lista) {
 int main(void) {
     unsigned int dia;
     Lista_S* contactos = entrada_de_datos();
-    lista_s_print(contactos, debug_print_contacto);
-    print("Que dia del mes ocurrio el incidente?"); dia=validar_uint_en_rango(1,30);
+    print("Que dia del mes ocurrio el incidente?");
+    dia=validar_uint_en_rango(1,30);
     Lista_S* correciones = antivirus(contactos, dia);
     println("Lista de contactos corregida:"); endl;
     print_contactos(contactos);
