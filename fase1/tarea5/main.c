@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#define EDLIB_MAIN
+#include "edlib.h"
 
 #define dato_t int
 
@@ -57,7 +59,7 @@ void colaAbandono(Nodo *cola, dato_t valor)
         printf("La cola esta vacia\n");
         return;
     }
-    
+
     actual = *cola;
     previo = NULL;
 
@@ -97,19 +99,47 @@ void colaImprimir(Nodo cola)
 int main()
 {
     Nodo cola = NULL;
+    int opcion, prioridad, dato;
 
-    colaInsertar(&cola, 10, 0);
-    colaInsertar(&cola, 20, 0);
-    colaInsertar(&cola, 30, 2);
-    colaInsertar(&cola, 40, 1);
-    colaInsertar(&cola, 50, 3);
-    colaImprimir(cola);
+    printf("¡Bienvenido!\n");
 
-    colaAtenderFrente(&cola);
-    colaImprimir(cola);
+    while(1)
+    {
 
-    colaAbandono(&cola, 10);
-    colaImprimir(cola);
+        printf("\nElige una opcion para continuar:\n"
+        "1. Insertar a la cola.\n"
+        "2. Eliminar de la cola.\n"
+        "3. Imprimir.\n"
+        "4. Salir.\n");
+        opcion = validar_int_en_rango(1, 4);
+
+        switch (opcion)
+        {
+        case 1:
+            printf("Ingrese el dato: \n");
+            dato = validar_int();
+            printf("Ingrese la prioridad que tendra el dato:\n ");
+            prioridad = validar_int_min(0);
+            colaInsertar(&cola, dato, prioridad);
+            break;
+
+        case 2:
+            printf("Ingrese el dato a eliminar\n");
+            dato = validar_int();
+            colaAbandono(&cola, dato);
+            break;
+
+        case 3:
+            printf("Imprimiendo cola\n");
+            colaImprimir(cola);
+            break;
+
+        default:
+            exit(1);
+            break;
+        }
+
+    }
 
     return 0;
 }
