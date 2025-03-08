@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0" version="26.1.0">
   <diagram name="Page-1" id="sUtSNQZAsD9c8u-VTn47">
-    <mxGraphModel dx="1481" dy="1165" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="3796" dy="3764" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -1034,6 +1034,18 @@
         <mxCell id="wdvKhD7wYS27l8QMHmYK-298" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;startSize=8;endArrow=classic;endSize=8;" edge="1" parent="1" source="wdvKhD7wYS27l8QMHmYK-289" target="wdvKhD7wYS27l8QMHmYK-297">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="wdvKhD7wYS27l8QMHmYK-301" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;startSize=8;endArrow=classic;endSize=8;" edge="1" parent="1" source="wdvKhD7wYS27l8QMHmYK-289" target="wdvKhD7wYS27l8QMHmYK-300">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="299" y="1395" />
+              <mxPoint x="299" y="1455" />
+              <mxPoint x="325" y="1455" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wdvKhD7wYS27l8QMHmYK-304" style="edgeStyle=orthogonalEdgeStyle;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;startSize=8;endArrow=classic;endSize=8;" edge="1" parent="1" source="wdvKhD7wYS27l8QMHmYK-289" target="wdvKhD7wYS27l8QMHmYK-303">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="wdvKhD7wYS27l8QMHmYK-289" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=hexagon;perimeter=hexagonPerimeter2;arcSize=6;size=0.27;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
           <mxGeometry x="167" y="1365" width="100" height="60" as="geometry" />
         </mxCell>
@@ -1047,13 +1059,22 @@
           <mxGeometry x="186.25" y="1380" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="wdvKhD7wYS27l8QMHmYK-297" value="&lt;div&gt;size_t capacidad = validar_uint_en_rango(1, 1&amp;lt;&amp;lt;16);&lt;/div&gt;&lt;div&gt;char arr[capacidad];&lt;/div&gt;&lt;div&gt;Pila_S pila = pila_estatica_init(arr, capacidad);&lt;/div&gt;&lt;div&gt;infijo_a_posfijo_estatico(&amp;amp;pila);&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
-          <mxGeometry x="330.88" y="1356" width="292" height="76" as="geometry" />
+          <mxGeometry x="332.88" y="1280" width="292" height="76" as="geometry" />
         </mxCell>
         <mxCell id="wdvKhD7wYS27l8QMHmYK-299" value="1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
-          <mxGeometry x="262" y="1361.5" width="60" height="30" as="geometry" />
+          <mxGeometry x="277.5" y="1289" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="wdvKhD7wYS27l8QMHmYK-300" value="&lt;div&gt;size_t capacidad = validar_uint_en_rango(1, 1&amp;lt;&amp;lt;16);&lt;/div&gt;&lt;div&gt;char arr[capacidad];&lt;/div&gt;&lt;div&gt;Pila_S pila = pila_estatica_init(arr, capacidad);&lt;/div&gt;&lt;div&gt;infijo_a_posfijo_estatico(&amp;amp;pila);&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
-          <mxGeometry x="330.88" y="1485" width="292" height="76" as="geometry" />
+        <mxCell id="wdvKhD7wYS27l8QMHmYK-300" value="&lt;div&gt;Pila_D* pila = pila_dinamica_crear();&lt;/div&gt;&lt;div&gt;infijo_a_posfijo_dinamico(pila);&lt;/div&gt;&lt;div&gt;pila_dinamica_destruir(pila);&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="332.88" y="1416" width="292" height="76" as="geometry" />
+        </mxCell>
+        <mxCell id="wdvKhD7wYS27l8QMHmYK-302" value="2" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="284" y="1453" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="wdvKhD7wYS27l8QMHmYK-303" value="FIN" style="ellipse;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="174.5" y="1473" width="85" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="wdvKhD7wYS27l8QMHmYK-305" value="3" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica;fontSize=12;fontColor=default;labelBackgroundColor=default;" vertex="1" parent="1">
+          <mxGeometry x="204" y="1428" width="60" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
