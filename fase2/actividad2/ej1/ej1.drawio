@@ -1,0 +1,179 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0" version="26.1.1">
+  <diagram name="Page-1" id="JbDo4O8F6RKad_KUoMXS">
+    <mxGraphModel dx="881" dy="931" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="KxwQyO3oboIJimN09dkb-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-2" target="KxwQyO3oboIJimN09dkb-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-2" value="unsigned int suma_digitos(unsigned int num)" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="50" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-3" value="FIN" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="312.5" y="230" width="65" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-4" target="KxwQyO3oboIJimN09dkb-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-4" target="KxwQyO3oboIJimN09dkb-11">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="180" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-4" value="num &amp;lt; 10" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="130" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-6" target="KxwQyO3oboIJimN09dkb-3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-6" value="return num;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="133.75" width="90" height="42.5" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-8" value="V" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="230" y="125" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-10" value="F" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="170" y="190" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-11" target="KxwQyO3oboIJimN09dkb-3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="310" y="256" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-11" value="return num%10 + suma_digitos(num/10);" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="85" y="230" width="190" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-14" target="KxwQyO3oboIJimN09dkb-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-14" value="num_sum mayor_suma_digitos(void)" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="50" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="743" y="194.125" as="targetPoint" />
+            <mxPoint x="700.4733333333334" y="194.20000000000005" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-15" target="KxwQyO3oboIJimN09dkb-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-15" value="&quot;Introduzca un numero natural&quot;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="562.5" y="140" width="155" height="56.25" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-18" target="KxwQyO3oboIJimN09dkb-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-18" value="actual.num" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="562.5" y="230" width="155" height="56.25" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="579" y="231.125" as="targetPoint" />
+            <mxPoint x="536.4733333333334" y="231.20000000000005" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-22" target="KxwQyO3oboIJimN09dkb-25">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-22" value="actual.sum = suma_digitos(actual.num);" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="320" width="240" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="743" y="454.125" as="targetPoint" />
+            <mxPoint x="700.4733333333334" y="454.20000000000005" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-25" target="KxwQyO3oboIJimN09dkb-27">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-25" value="&quot;Continuar?&quot;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="562.5" y="400" width="155" height="56.25" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-27" target="KxwQyO3oboIJimN09dkb-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-27" value="opc" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="592.75" y="493" width="94.5" height="37" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-28" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="608.03" y="495.125" as="targetPoint" />
+            <mxPoint x="565.5033333333333" y="495.20000000000005" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-33" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-30" target="KxwQyO3oboIJimN09dkb-32">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-30" target="KxwQyO3oboIJimN09dkb-34">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-30" value="opc==2" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="582.5" y="560" width="115" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-32" target="KxwQyO3oboIJimN09dkb-38">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-32" value="retrurn actual;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="740" y="570" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-34" target="KxwQyO3oboIJimN09dkb-38">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-34" value="&lt;div&gt;num_sum siguiente = mayor_suma_digitos();&lt;/div&gt;&lt;div&gt;return actual.sum &amp;gt; siguiente ? actual : siguiente;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="660" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-36" value="V" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="680" y="560" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-37" value="F" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="627.25" y="620" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-38" value="FIN" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="820" y="665" width="65" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-45" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-42" target="KxwQyO3oboIJimN09dkb-44">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-42" value="Inicio" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="140" y="330" width="90" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-46" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="298" y="468.375" as="targetPoint" />
+            <mxPoint x="265.49014778325113" y="468.4000000000001" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-44" target="KxwQyO3oboIJimN09dkb-47">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-44" value="&quot;Programa para calcular la mayor suma de digitos&quot;" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="82.5" y="420" width="205" height="50.75" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-50" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-47" target="KxwQyO3oboIJimN09dkb-49">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-47" value="num_sum respuesta = mayor_suma_digitos();" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="508" width="190" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="KxwQyO3oboIJimN09dkb-49" target="KxwQyO3oboIJimN09dkb-52">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-49" value="respuesta.num" style="shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="107.5" y="590" width="155" height="56.25" as="geometry" />
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="278" y="640.375" as="targetPoint" />
+            <mxPoint x="245.49014778325113" y="640.4000000000001" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="KxwQyO3oboIJimN09dkb-52" value="FIN" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="145" y="680" width="80" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
