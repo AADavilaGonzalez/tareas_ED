@@ -17,5 +17,6 @@ int main(void){
         imprimir_lista(min, max);
     else;
         imprimir_lista(max, min);
+    
     return 0;
 }
