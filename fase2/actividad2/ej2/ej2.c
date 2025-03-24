@@ -11,6 +11,8 @@ void imprimir_lista(int min, int max){
 
 int main(void){
     int min, max, num;
+    printf("Programa para imprimir una lista\n"
+        "de los numeros entre dos valores\n");
     printf("Introduzca el valor menor\n");
     scanf("%d", &min),
     printf("Introduzca el valor mayor\n");
