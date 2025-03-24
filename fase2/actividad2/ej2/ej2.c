@@ -1,8 +1,11 @@
 #include <stdio.h>
 
 void imprimir_lista(int min, int max){
+    /*Caso base*/
     if(min > max) return;
+    /* Imprimimos el siguiente número*/
     printf("%d ", min);
+    /* Llamamos a la función incrementando el minimo para imprimirlo*/
     imprimir_lista(min+1, max);
 }
 
@@ -13,6 +16,7 @@ int main(void){
     printf("Introduzca el valor mayor\n");
     scanf("%d", &max);
 
+    /* Condicional en caso de que el usuario ingrese los valores mal*/
     if(min < max)
         imprimir_lista(min, max);
     else;
