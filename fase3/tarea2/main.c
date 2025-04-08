@@ -74,7 +74,7 @@ void imprimir_matriz_ady(Grafo_D* grafo) {
     }
     MatrizAdy_N* matriz = grafo_d_generar_matriz_ady(grafo);
     Nodo_V* vptr = grafo->lista_ady;
-    print("  G  |");
+    print("   G |");
     while(vptr!=NULL) {
         printf(" %3d |", vptr->vt);
         vptr=vptr->sig;
@@ -84,7 +84,7 @@ void imprimir_matriz_ady(Grafo_D* grafo) {
     for(int i=0; i<grafo->orden; ++i, vptr=vptr->sig) {
         printf(" %3d |", vptr->vt);
         for(int j=0; j<grafo->orden; ++j) {
-            printf(" %3d |", GD_MATRIZ_INDEX(matriz, i, j));
+            printf(" %3lu |", GD_MATRIZ_INDEX(matriz, i, j));
         }
         print("\n");
     }
@@ -102,7 +102,7 @@ void imprimir_matriz_pesos(Grafo_D* grafo) {
     }
     MatrizAdy_P* matriz = grafo_d_generar_matriz_pesos(grafo);
     Nodo_V* vptr = grafo->lista_ady;
-    print("  G  |");
+    print("   G |");
     while(vptr!=NULL) {
         printf(" %3d |", vptr->vt);
         vptr=vptr->sig;
@@ -112,7 +112,9 @@ void imprimir_matriz_pesos(Grafo_D* grafo) {
     for(int i=0; i<grafo->orden; ++i, vptr=vptr->sig) {
         printf(" %3d |", vptr->vt);
         for(int j=0; j<grafo->orden; ++j) {
-            printf(" %3d |", GD_MATRIZ_INDEX(matriz, i, j));
+            if(GD_MATRIZ_INDEX(matriz, i, j)!=PESO_NO_ARISTA)
+                printf(" %3d |", GD_MATRIZ_INDEX(matriz, i, j));
+            else print(" INF |");
         }
         print("\n");
     }

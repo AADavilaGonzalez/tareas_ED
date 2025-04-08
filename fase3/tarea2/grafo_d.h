@@ -1021,9 +1021,9 @@ static void grafo_d_print_lista_ady_pond(const Grafo_D* grafo,
         printf("]");
         Nodo_A* aptr=vptr->lista_ady;
         while(aptr!=NULL) {
-            printf(" -> (");
+            printf(" -> (w:");
             print_peso(grafo->calc_peso(&(aptr->ar)));
-            printf(", ");
+            printf(",v:");
             print_vt(&(aptr->fin->vt));
             printf(")");
             aptr=aptr->sig;
