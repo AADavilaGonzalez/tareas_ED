@@ -10,7 +10,6 @@ typedef struct nodo{
 void limpiar_pantalla();
 Nodo* crear_nodo(int valor);
 Nodo* insertar_elemento(Nodo* raiz, int valor);
-void inorder(Nodo *raiz);
 Nodo* buscar_elemento(Nodo *raiz, int valor);
 void imprimir_arbol(Nodo* raiz, int nivel);
 
@@ -78,7 +77,7 @@ int main(void){
                     insertar_elemento(raiz, valor);
                     printf("Arbol: \n");
                     imprimir_arbol(raiz, 0);
-                    
+
                     printf("\n\n");
                     break;
                 }
@@ -131,14 +130,6 @@ Nodo *insertar_elemento(Nodo *raiz, int valor){
     else if(valor > raiz->dato) raiz->der = insertar_elemento(raiz->der, valor);
     // Si es igual, no se inserta (Evita duplicados)
     return raiz;
-}
-
-void inorder(Nodo *raiz){
-    if(raiz != NULL){
-        inorder(raiz->izq);
-        printf("%d ", raiz->dato);
-        inorder(raiz->der);
-    }
 }
 
 void imprimir_arbol(Nodo* raiz, int nivel){
