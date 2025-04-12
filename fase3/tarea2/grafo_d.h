@@ -240,6 +240,20 @@ static void grafo_d_destruir(Grafo_D* grafo) {
 
 /*----------------------------Operaciones sobre los vertices-----------------------------*/
 
+static Vect_V* grafo_d_get_vertices(Grafo_D* grafo) {
+    Vect_V* vec = (Vect_V*)malloc(sizeof(Vect_V)+sizeof(Vertice*)*grafo->orden);
+    if(!vec) return NULL;
+    vec->tamano=grafo->orden;
+    int i=0;
+    Nodo_V* vptr = grafo->lista_ady;
+    while(vptr!=NULL) {
+        vec->vertices[i]=&(vptr->vt);
+        vptr=vptr->sig;
+        ++i;
+    }
+    return vec;
+}
+
 /*  Inserta un vertice con los datos que contenga el agumento vt, devuelve la direccion
     de memoria que identifica al vertice como elemento unico del grafo, las demas operaciones
     que esperan un argumento vertice toman este valor de retorno para identificar el vertice
@@ -370,6 +384,24 @@ static void grafo_d_eliminar_vertice(Grafo_D* grafo, Vertice* vt) {
 }
 
 /*----------------------------Operaciones sobre las aristas------------------------------*/
+
+static Vect_A* grafo_d_get_aristas(Grafo_D* grafo) {
+    Vect_A* vec = (Vect_A*)malloc(sizeof(Vect_A)+sizeof(Arista*)*grafo->tamano);
+    if(!vec) return NULL;
+    vec->tamano=grafo->tamano;
+    int i=0;
+    Nodo_V* vptr = grafo->lista_ady;
+    while(vptr!=NULL) {
+        Nodo_A* aptr = vptr->lista_ady;
+        while(aptr!=NULL) {
+            vec->aristas[i]=&(aptr->ar);
+            aptr=aptr->sig;
+            ++i;
+        }
+        vptr=vptr->sig;
+    }
+    return vec;
+}
 
 /*  Inserta una arista entre el vertice ini y el vertice fin que va de ini a fin. Los datos de la
     arista seran los suministrados mediante el argumento ar. La funcion devuelve la direccion de memoria
@@ -957,6 +989,93 @@ static Camino_D* grafo_d_dijkstra(const Grafo_D* grafo, const Vertice* ini, cons
 }
 
 /*-------------------------------Operaciones Miscelaneas---------------------------------*/
+
+typedef enum {
+    ANTES,
+    DESPUES
+} orden_t;
+
+/*  Ordena los vertices en la lista de adyacencia del grafo de acuerdo a la funcion
+    proporcionada como segundo argumento. La funcion orden debe regresar la posicion de el
+    primer vertice con respecto al segundo en terminos de el enum orden_t (ANTES, DESPUES)
+*/
+static void grafo_d_ordenar_vertices(Grafo_D* grafo, orden_t (*orden)(Vertice*, Vertice*)) { 
+    Nodo_V* lista_ordenada = NULL;
+    while(grafo->lista_ady!=NULL) { 
+        Nodo_V* vptr=grafo->lista_ady;
+        Vertice* ultimo=&(vptr->vt);
+        Nodo_V* prev_ultimo=NULL;
+        while(vptr->sig!=NULL) {
+            if(orden(&(vptr->sig->vt),ultimo)==DESPUES) {
+                ultimo=&(vptr->sig->vt);
+                prev_ultimo=vptr;
+            }
+            vptr=vptr->sig;
+        }
+        if(prev_ultimo==NULL) {
+            vptr=grafo->lista_ady;
+            grafo->lista_ady=vptr->sig;
+            vptr->sig=lista_ordenada;
+            lista_ordenada=vptr;
+        }
+        else {
+            vptr=prev_ultimo->sig;
+            prev_ultimo->sig=vptr->sig;
+            vptr->sig=lista_ordenada;
+            lista_ordenada=vptr;
+        }
+    }
+    grafo->lista_ady=lista_ordenada;
+}
+/*  !!!FUNCION DE USO INTERNO!!!
+    Ordena la lista de ayacencia del Nodo_V pasado como primer argumento de acuerdo a la funcion
+    proporcionada como segundo argumento. La funcion orden debe regresar la posicion de el
+    primer vertice con respecto al segundo en terminos de el enum orden_t (ANTES, DESPUES)
+*/
+static void _grafo_d_ordenar_aristas(Nodo_V* nodo, orden_t (*orden)(Arista*, Arista*)) {
+    Nodo_A* lista_ordenada = NULL;
+    while(nodo->lista_ady!=NULL) {
+        Nodo_A* aptr=nodo->lista_ady;
+        Arista* ultimo=&(aptr->ar);
+        Nodo_A* prev_ultimo=NULL;
+        while(aptr->sig!=NULL) {
+            if(orden(&(aptr->sig->ar),ultimo)==DESPUES) {
+                ultimo=&(aptr->sig->ar);
+                prev_ultimo=aptr;
+            }
+            aptr=aptr->sig;
+        }
+        if(prev_ultimo==NULL) {
+            aptr=nodo->lista_ady;
+            nodo->lista_ady=aptr->sig;
+            aptr->sig=lista_ordenada;
+            lista_ordenada=aptr;
+        }
+        else {
+            aptr=prev_ultimo->sig;
+            prev_ultimo->sig=aptr->sig;
+            aptr->sig=lista_ordenada;
+            lista_ordenada=aptr;
+        }
+    }
+    nodo->lista_ady=lista_ordenada;
+}
+
+/*  Ordena toda la represetacion interna del grafo de acuerdo a las dos funciones
+    proporcionadas como argumentos. Cada funcion orden debe regresar la posicion de el
+    primer vertice/arista con respecto al segundo en terminos de el enum orden_t (ANTES, DESPUES)
+*/
+static void grafo_d_ordenar_lista_ady(Grafo_D* grafo,
+    orden_t (*orden_vt)(Vertice*,Vertice*), orden_t  (*orden_ar)(Arista*, Arista*)) {
+    
+    grafo_d_ordenar_vertices(grafo, orden_vt);
+    Nodo_V* vptr=grafo->lista_ady;
+    while(vptr!=NULL) {
+        _grafo_d_ordenar_aristas(vptr, orden_ar);
+        vptr=vptr->sig;
+    }
+    return;
+}
 
 /*  Imprime una representacion cruda del grafo en su forma de lista de adyacencia
     Los vertices y aristas del grafo estan identificados por su direccion de memoria

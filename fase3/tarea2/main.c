@@ -2,8 +2,8 @@
 
 #define EDLIB_MAIN
 #include "edlib.h"
-
 #include "grafo_d.h"
+#include "lista_s.h"
 
 peso_t calc_peso(Arista* arista) {return *arista;}
 void print_vt(Vertice* vertice) {printf("%d", *vertice);}
@@ -66,65 +66,154 @@ void agregar_arista(Grafo_D* grafo) {
 }
 
 void imprimir_matriz_ady(Grafo_D* grafo) {
-    endl;
     if(grafo_d_isempty(grafo)) {
         println("El grafo se encuentra vacio");
         flush();
         return;
     }
+    Vect_V* vts = grafo_d_get_vertices(grafo);
     MatrizAdy_N* matriz = grafo_d_generar_matriz_ady(grafo);
-    Nodo_V* vptr = grafo->lista_ady;
     print("   G |");
-    while(vptr!=NULL) {
-        printf(" %3d |", vptr->vt);
-        vptr=vptr->sig;
+    for(int i=0; i<grafo->orden; ++i) {
+        printf(" %3d |", *(vts->vertices[i]));
     }
-    print("\n");
-    vptr=grafo->lista_ady;
-    for(int i=0; i<grafo->orden; ++i, vptr=vptr->sig) {
-        printf(" %3d |", vptr->vt);
+    endl;
+    for(int i=0; i<grafo->orden; ++i) {
+        printf(" %3d |", *(vts->vertices[i]));
         for(int j=0; j<grafo->orden; ++j) {
             printf(" %3lu |", GD_MATRIZ_INDEX(matriz, i, j));
         }
-        print("\n");
+        endl;
     }
+    free(vts);
     free(matriz);
     flush();
     return;
 }
 
 void imprimir_matriz_pesos(Grafo_D* grafo) {
-    endl;
     if(grafo_d_isempty(grafo)) {
         println("El grafo se encuentra vacio");
         flush();
         return;
     }
+    Vect_V* vts = grafo_d_get_vertices(grafo);
     MatrizAdy_P* matriz = grafo_d_generar_matriz_pesos(grafo);
-    Nodo_V* vptr = grafo->lista_ady;
     print("   G |");
-    while(vptr!=NULL) {
-        printf(" %3d |", vptr->vt);
-        vptr=vptr->sig;
+    for(int i=0; i<grafo->orden; ++i) {
+        printf(" %3d |", *(vts->vertices[i]));
     }
-    print("\n");
-    vptr=grafo->lista_ady;
-    for(int i=0; i<grafo->orden; ++i, vptr=vptr->sig) {
-        printf(" %3d |", vptr->vt);
+    endl;
+    for(int i=0; i<grafo->orden; ++i) {
+        printf(" %3d |", *(vts->vertices[i]));
         for(int j=0; j<grafo->orden; ++j) {
             if(GD_MATRIZ_INDEX(matriz, i, j)!=PESO_NO_ARISTA)
                 printf(" %3d |", GD_MATRIZ_INDEX(matriz, i, j));
+            else if(i==j) print("  0  |");
             else print(" INF |");
         }
-        print("\n");
+        endl;
     }
+    free(vts);
     free(matriz);
+    flush();
+    return;
+}
+
+Vertice* seleccionar_vertice(Grafo_D* grafo) {
+    println("Ingrese el vertice que va a ser seleccionado como raiz");
+    edlib_set_msj_error("La etiqueta debe ser un enter >= 0");
+    Vertice* vert = grafo_d_buscar_vertice(grafo, validar_int_min(0));
+    if(!vert) {
+        println("El vertice solicitado no es parte del grafo");
+        flush();
+        return NULL;
+    }
+    return vert;
+}
+
+#define Pila Lista_S
+#define pila_crear() (lista_s_crear())
+#define pila_get(lista) (lista->cabeza->dato)
+#define pila_isempty(lista) (lista_s_isempty(lista))
+#define pila_insertar(lista, valor) (lista_s_insertar_inicio(lista, valor))
+#define pila_eliminar(lista) (lista_s_eliminar_inicio(lista))
+#define pila_destruir(lista) (lista_s_destruir(lista))
+
+#define Cola Lista_S
+#define cola_crear() (lista_s_crear())
+#define cola_get(lista) (lista->cabeza->dato)
+#define cola_isempty(lista) (lista_s_isempty(lista))
+#define cola_encolar(lista, valor) (lista_s_insertar_fin(lista,valor))
+#define cola_desencolar(lista) (lista_s_eliminar_inicio(lista))
+#define cola_destruir(lista) (lista_s_destruir(lista))
+
+int get_indice_vertice(const Vect_V* vect, Vertice* vt) {
+    for(int i=0; i<vect->tamano; ++i) {
+        if(vect->vertices[i]==vt) return i;
+    }
+    return -1;
+}
+
+void recorrido_profundidad(Grafo_D* grafo, Vertice* raiz) {
+    Vect_V* vts = grafo_d_get_vertices(grafo);
+    MatrizAdy_N* matriz = grafo_d_generar_matriz_ady(grafo);
+    Lista_S* visitados = lista_s_crear();
+    Pila* pila = pila_crear();
+    pila_insertar(pila, get_indice_vertice(vts, raiz));
+    print("Recorrido");
+    while(!pila_isempty(pila)) {
+        int i = pila_get(pila);
+        pila_eliminar(pila);
+        if(!lista_s_contiene(visitados, i)) {
+            printf(" -> %d", *(vts->vertices[i]));
+            lista_s_insertar_inicio(visitados, i);
+            for(int j=grafo->orden-1; j>=0; --j) {
+                if(GD_MATRIZ_INDEX(matriz, i, j)!=0) {
+                    pila_insertar(pila, j);
+                }
+            } 
+        }
+    }
+    free(vts);
+    free(matriz);
+    lista_s_destruir(visitados);
+    pila_destruir(pila);
+    flush();
+    return;
+}
+
+void recorrido_anchura(Grafo_D* grafo, Vertice* raiz) {
+    Vect_V* vts = grafo_d_get_vertices(grafo);
+    MatrizAdy_N* matriz = grafo_d_generar_matriz_ady(grafo);
+    Lista_S* visitados = lista_s_crear();
+    Cola* cola = cola_crear();
+    cola_encolar(cola, get_indice_vertice(vts, raiz));
+    print("Recorrido");
+    while(!cola_isempty(cola)) {
+        int i = cola_get(cola);
+        cola_desencolar(cola);
+        if(!lista_s_contiene(visitados, i)) {
+            printf(" -> %d", *(vts->vertices[i]));
+            lista_s_insertar_inicio(visitados, i);
+            for(int j=0; j<grafo->orden; ++j) {
+                if(GD_MATRIZ_INDEX(matriz, i, j)!=0) {
+                    cola_encolar(cola, j);
+                }
+            }   
+        }
+    }
+    free(vts);
+    free(matriz);
+    lista_s_destruir(visitados);
+    cola_destruir(cola);
     flush();
     return;
 }
 
 int main(void) {
     Grafo_D* grafo = grafo_d_crear();
+    Vertice* vert;
     if(!grafo) {
         println("Error al crear el grafo!",
                 "Saliendo del programa...");
@@ -151,16 +240,20 @@ int main(void) {
             agregar_arista(grafo);
             break;
         case 3:
+            endl;
             imprimir_matriz_ady(grafo);
             break;
         case 4:
+            endl;
             imprimir_matriz_pesos(grafo);
             break;
         case 5:
-            //recorrido_profundidad(grafo);
+            vert = seleccionar_vertice(grafo);
+            if(vert) recorrido_profundidad(grafo, vert);
             break;
         case 6:
-            //recorrido_anchura(grafo);
+            vert = seleccionar_vertice(grafo);
+            if(vert) recorrido_anchura(grafo, vert);
             break;
         case 7:
             grafo_d_destruir(grafo);
