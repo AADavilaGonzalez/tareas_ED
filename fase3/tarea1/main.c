@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define EDLIB_MAIN
+#include "edlib.h"
+
 typedef struct nodo {
     int dato;
     struct nodo *izq;
@@ -11,12 +14,12 @@ void limpiar_pantalla();
 Nodo* crear_nodo(int valor);
 Nodo* insertar_elemento(Nodo* raiz, int valor);
 Nodo* buscar_elemento(Nodo *raiz, int valor);
-Nodo *eliminar_elemento(Nodo **raiz, int valor);
+Nodo* eliminar_elemento(Nodo **raiz, int valor);
 void imprimir_arbol(Nodo* raiz, int nivel);
 
 int main(void) {
     int op1, val = 0, num, i, valor;
-    Nodo *raiz = NULL;
+    Nodo *raiz = NULL, *elemento = NULL;
 
     while (1) {
         // Ciclo para validar el menu
@@ -66,6 +69,30 @@ int main(void) {
                 if (val == 1 && raiz != NULL) printf("El arbol ya ha sido creado\n\n");
                 break;
             case 2:
+                if (val == 1 && raiz != NULL) {
+                    while (1)
+                    {
+                        printf("Introduzca el elemento a buscar: (-1 para salir)\n");
+                        valor = validar_int_min(-1);
+
+                        if(valor == -1)
+                            break;
+                
+                        elemento = buscar_elemento(raiz, valor);
+                        if (elemento != NULL)
+                        {
+                            printf("Elemento encontrado: %d\n", elemento);
+                            printf("\nArbol: \n");
+                            imprimir_arbol(raiz, 0);
+                            printf("\n\n");
+                        }
+                        else
+                            printf("Elemento no encontrado\n");
+                    }
+                }
+                if (val == 0) printf("El arbol no a sido creado\n\n");
+                else if (raiz == NULL) printf("El arbol esta vacio\n\n");
+                break;
                 break;
             case 3:
                 if (val == 1 && raiz != NULL) {
@@ -160,8 +187,24 @@ void imprimir_arbol(Nodo* raiz, int nivel) {
     imprimir_arbol(raiz->izq, nivel + 1);
 }
 
-Nodo *eliminar_elemento(Nodo **raiz, int valor) {
+Nodo* buscar_elemento(Nodo *raiz, int valor)
+{
+    if(raiz == NULL)//regresa null por si no encontro el elemento
+        return NULL;
+        
+    if(raiz->dato == valor) // si el valor pedido es el mismo que el dato en el nodo se regresa el valor
+        return raiz;
+
+    if(valor < raiz->dato)//si el valor es menor que el dato del nodo se va a para la izquierda
+        return buscar_elemento(raiz->izq, valor);
+    else
+        return buscar_elemento(raiz->der, valor);//por el contrario se va a la derecha si es mayor
+    
+}
+
+Nodo* eliminar_elemento(Nodo **raiz, int valor) {
     Nodo *actual = *raiz, *anterior = NULL, *buscar, *buscar_anterior;
+    // Buscar el nodo a eliminar
     while (actual != NULL && actual->dato != valor)
     {
         anterior = actual;
@@ -170,20 +213,24 @@ Nodo *eliminar_elemento(Nodo **raiz, int valor) {
         else
             actual = actual->izq;
     }
+    // Si el nodo se encontro en el arbol
     if (actual == NULL)
         printf("El valor no existe en el arbol\n");
     else
     {
+        // Si el nodo a eliminar tiene hijo por la izquierda buscar el nodo mas grande del sub arbol izquierdo
         if (actual->izq != NULL)
         {
             buscar_anterior = actual;
             buscar = actual->izq;
+            // Buscar el nodo mas a la derecha del sub arbol izquierdo
             while (buscar->der != NULL)
             {
                 buscar_anterior = buscar;
                 buscar = buscar->der;
             }
             actual->dato = buscar->dato;
+            // Si tiene un hijo a la izquierda sustituir las referencias al nodo que se va a intercambiar por el nodo izquierdo
             if (buscar->izq != NULL)
             {
                 if (buscar_anterior == actual)
@@ -200,16 +247,19 @@ Nodo *eliminar_elemento(Nodo **raiz, int valor) {
             }
             free(buscar);
         }
+        // Si el nodo a eliminar tiene hijo por la derecha y no por la izquierda, buscar el nodo mas grande del sub arbol derecho
         else if (actual->der != NULL)
         {
             buscar_anterior = actual;
             buscar = actual->der;
+            // Buscar el nodo mas a la izquierda del sub arbol derecho
             while (buscar->izq != NULL)
             {
                 buscar_anterior = buscar;
                 buscar = buscar->izq;
             }
             actual->dato = buscar->dato;
+            // Si tiene un hijo a la derecha sustituir las referencias al nodo que se va a intercambiar por el nodo derecho
             if (buscar->der != NULL)
             {
                 if (buscar_anterior == actual)
@@ -226,6 +276,7 @@ Nodo *eliminar_elemento(Nodo **raiz, int valor) {
             }
             free(buscar);
         }
+        // Si no tiene hijos liberar el nodo y eliminar las referencias al mismo
         else
         {
             if (anterior != NULL)
