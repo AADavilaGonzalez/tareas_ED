@@ -5,8 +5,31 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 #include <limits.h>
 #include <assert.h>
+
+/*  Declaracion anticipada de la interfaz publica*/
+struct grafo_d;
+typedef struct grafo_d Grafo_D;
+
+struct vect_v;
+typedef struct vect_v Vect_V;
+struct vect_a;
+typedef struct vect_a Vect_A;
+struct vect_c;
+typedef struct vect_c Vect_C;
+
+struct matrizady_d;
+typedef struct matrizady_d MatrizAdy_D;
+struct matrizady_n;
+typedef struct matrizady_n MatrizAdy_N;
+struct matrizady_p;
+typedef struct matrizady_p MatrizAdy_P;
+
+
+#define malloc_fam(tipo_estructura, tipo_elemento, tamano) \
+    malloc(sizeof(tipo_estructura)+sizeof(tipo_elemento)*tamano)
 
 /*  LIBRERIA DE GRAFOS DINAMICOS GRAFO_D
     Esta es una libreria de tipo cabezera que implementa el tipo de dato abstracto
@@ -100,6 +123,83 @@
 #define PESO_NO_ARISTA INT_MAX
 #endif
 
+#ifdef GRAFO_D_METADATA
+#define MetaData GRAFO_D_METADATA
+#endif
+
+/*----------------------Definicion de los tipos de datos de interfaz---------------------*/
+
+struct vect_v {
+    size_t tamano;
+    Vertice* vertices[];
+};
+
+/*  Crea un vector estatico en el heap capaz de contener hasta 'tamano' verices
+    No es posible modificar el tamano del vector despues de crearlo
+*/
+static inline const Vect_V* vect_v_crear(size_t tamano) {
+    Vect_V* vect = (Vect_V*)malloc_fam(Vect_V, Vertice*, tamano);
+    if(!vect) return NULL;
+    vect->tamano=tamano;
+    memset(vect->vertices,0, sizeof(Vertice*)*tamano);
+    return vect;
+}
+
+/*  Libera la memoria de un vector de vertices, el puntero al vector
+    queda invalidado despues de esta operacion*/
+static inline void vect_v_destruir(const Vect_V* vector) {free((void*)vector);}
+
+struct vect_a {
+    size_t tamano;
+    Arista* aristas[];
+};
+
+/*  Crea un vector estatico en el heap capaz de contener hasta 'tamano' verices
+    No es posible modificar el tamano del vector despues de crearlo
+*/
+static inline const Vect_A* vect_a_crear(size_t tamano) {
+    Vect_A* vect = (Vect_A*)malloc_fam(Vect_A, Arista*, tamano);
+    if(!vect) return NULL;
+    vect->tamano=tamano;
+    memset(vect->aristas, 0, sizeof(Arista*)*tamano);
+    return vect;
+}
+
+/*  Libera la memoria de un vector de aristas, el puntero al vector
+    queda invalidado despues de esta operacion*/
+static inline void vect_a_destruir(const Vect_A* vector) {free((void*)vector);}
+
+struct _nodo_a;
+struct _nodo_v;
+
+struct _nodo_a {
+    struct _nodo_a* sig;
+    Arista ar;
+    struct _nodo_v* fin;
+};
+
+struct _nodo_v {
+    struct _nodo_v* sig;
+    Vertice vt;
+    size_t grado_s;
+    struct _nodo_a* lista_ady;
+}; 
+
+typedef struct grafo_d {
+    struct _nodo_v* lista_ady;
+    struct _nodo_v* lista_fin;
+    size_t orden;
+    size_t tamano;
+    bool (*cmp_vt)(const Vertice*, const Vertice*);
+    bool (*cmp_ar)(const Arista*, const Arista*);
+    peso_t (*calc_peso)(const struct grafo_d*, const Arista*);
+    #ifdef GRAFO_D_METADATA
+    MetaData contexto;
+    #endif
+} Grafo_D;
+
+/*---------------------------Operaciones basicas del grafo------------------------------*/
+
 #ifndef STRUCT_VERTICE
 static bool _grafo_d_cmp_vt_default(const Vertice* v1, const Vertice* v2) {return *v1==*v2;}
 #define cmp_vt_default _grafo_d_cmp_vt_default
@@ -114,58 +214,8 @@ static bool _grafo_d_cmp_ar_default(const Arista* a1, const Arista* a2) {return 
 #define cmp_ar_default NULL
 #endif
 
-struct grafo_d;
-static peso_t _grafo_d_calc_peso_default(const struct grafo_d* grafo,const Arista* arista) {return (peso_t)1;}
+static peso_t _grafo_d_calc_peso_default(const Grafo_D* grafo, const Arista* arista) {return (peso_t)1;}
 #define calc_peso_default _grafo_d_calc_peso_default
-
-#ifdef STRUCT_METADATA
-#define MetaData STRUCT_METADATA
-#else
-#define MetaData void
-#endif
-
-/*----------------------Definicion de los tipos de datos de interfaz---------------------*/
-
-typedef struct vect_v {
-    size_t tamano;
-    Vertice* vertices[];
-} Vect_V;
-
-typedef struct vect_a {
-    size_t tamano;
-    Arista* aristas[];
-} Vect_A;
-
-struct nodo_a;
-typedef struct nodo_a Nodo_A;
-struct nodo_v;
-typedef struct nodo_v Nodo_V;
-
-struct nodo_a {
-    struct nodo_a* sig;
-    Arista ar;
-    Nodo_V* fin;
-};
-
-struct nodo_v {
-    struct nodo_v* sig;
-    Vertice vt;
-    size_t grado_s;
-    Nodo_A* lista_ady;
-};
-
-typedef struct grafo_d {
-    Nodo_V* lista_ady;
-    Nodo_V* lista_fin;
-    size_t orden;
-    size_t tamano;
-    bool (*cmp_vt)(const Vertice*, const Vertice*);
-    bool (*cmp_ar)(const Arista*, const Arista*);
-    peso_t (*calc_peso)(const struct grafo_d*, const Arista*);
-    MetaData* contexto;
-} Grafo_D;
-
-/*---------------------------Operaciones basicas del grafo------------------------------*/
 
 /*  Crear un grafo vacio para empezar a realizar operaciones. Algunas funciones requieren
     que el grafo tenga asociado un comportamineto en particular, mediante las funciones
@@ -181,7 +231,6 @@ static Grafo_D* grafo_d_crear(void) {
     grafo->cmp_vt=cmp_vt_default;
     grafo->cmp_ar=cmp_ar_default;
     grafo->calc_peso=calc_peso_default;
-    grafo->contexto=NULL;
     return grafo;
 }
 
@@ -228,14 +277,6 @@ static inline void grafo_d_set_calc_peso(Grafo_D* grafo,
 static inline void grafo_d_unset_calc_peso(Grafo_D* grafo) {
     grafo->calc_peso=calc_peso_default;}
 
-/*  Asigna al grafo un puntero a una ubicacion de memoria MANEJADA POR EL USUARIO
-    con informacion pertinente al grafo. Se utiliza para poder tener acceso a
-    informacion fuera del grafo dentro de funciones creadas por el usuario como
-    las pasadas a grafo_d_set_calc_peso
-*/
-static inline void grafo_d_set_contexto(Grafo_D* grafo, 
-    MetaData* contexto) {grafo->contexto=contexto;}
-
 /*  Regresa si el grafo se encuentra vacio*/
 static inline bool grafo_d_isempty(const Grafo_D* grafo) {
     return grafo->lista_ady==NULL
@@ -247,9 +288,9 @@ static inline bool grafo_d_isempty(const Grafo_D* grafo) {
     pasado a la funcion queda invalidado despues de esta operacion
 */
 static void grafo_d_destruir(Grafo_D* grafo) {
-    Nodo_V* vptr = grafo->lista_ady, *vtmp;
+    struct _nodo_v* vptr = grafo->lista_ady, *vtmp;
     while(vptr!=NULL) {
-        Nodo_A *aptr = vptr->lista_ady, *atmp;
+        struct _nodo_a *aptr = vptr->lista_ady, *atmp;
         while(aptr!=NULL) {
             atmp=aptr;
             aptr=aptr->sig;
@@ -268,12 +309,12 @@ static void grafo_d_destruir(Grafo_D* grafo) {
 /*  Regresa un vector dinamcamente alojado que contiene todos los vertices del grafo.
     El vector debe ser liberado con una llamada correspondiente a free()
 */
-static Vect_V* grafo_d_get_vertices(const Grafo_D* grafo) {
-    Vect_V* vec = (Vect_V*)malloc(sizeof(Vect_V)+sizeof(Vertice*)*grafo->orden);
+static const Vect_V* grafo_d_get_vertices(const Grafo_D* grafo) {
+    Vect_V* vec = (Vect_V*)malloc_fam(Vect_V, Vertice*, grafo->orden);
     if(!vec) return NULL;
     vec->tamano=grafo->orden;
     int i=0;
-    Nodo_V* vptr = grafo->lista_ady;
+    struct _nodo_v* vptr = grafo->lista_ady;
     while(vptr!=NULL) {
         vec->vertices[i]=&(vptr->vt);
         vptr=vptr->sig;
@@ -287,7 +328,7 @@ static Vect_V* grafo_d_get_vertices(const Grafo_D* grafo) {
     que esperan un argumento vertice toman este valor de retorno para identificar el vertice
 */
 static Vertice* grafo_d_insertar_vertice(Grafo_D* grafo, Vertice vt) {
-    Nodo_V* nuevo = (Nodo_V*)malloc(sizeof(Nodo_V));
+    struct _nodo_v* nuevo = (struct _nodo_v*)malloc(sizeof(struct _nodo_v));
     if(!nuevo) return NULL;
     nuevo->lista_ady=NULL;
     nuevo->sig=NULL;
@@ -311,7 +352,7 @@ static Vertice* grafo_d_insertar_vertice(Grafo_D* grafo, Vertice vt) {
 */
 static Vertice* grafo_d_buscar_vertice(const Grafo_D* grafo, Vertice ref) {
     assert(grafo->cmp_vt!=NULL);
-    Nodo_V* vptr = grafo->lista_ady;
+    struct _nodo_v* vptr = grafo->lista_ady;
     while(vptr!=NULL) {
         if(grafo->cmp_vt(&(vptr->vt),&ref))
             return &(vptr->vt);
@@ -326,10 +367,10 @@ static Vertice* grafo_d_buscar_vertice(const Grafo_D* grafo, Vertice ref) {
 */
 static const Vect_V* grafo_d_buscar_vertices(const Grafo_D* grafo, Vertice ref) {
     assert(grafo->cmp_vt!=NULL);
-    Vect_V* vectmp = (Vect_V*)malloc(sizeof(Vect_V)+sizeof(Vertice*)*(grafo->orden));
+    Vect_V* vectmp = (Vect_V*)malloc_fam(Vect_V, Vertice*, grafo->orden);
     if(!vectmp) return NULL;
     vectmp->tamano=0;
-    Nodo_V* vptr=grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(vptr!=NULL) {
         if(grafo->cmp_vt(&(vptr->vt), &ref)) {
             vectmp->vertices[vectmp->tamano]=&(vptr->vt);
@@ -337,9 +378,9 @@ static const Vect_V* grafo_d_buscar_vertices(const Grafo_D* grafo, Vertice ref) 
         }
         vptr=vptr->sig;
     }
-    Vect_V* vector = (Vect_V*)malloc(sizeof(Vect_V)+sizeof(Vertice*)*(vectmp->tamano));
+    Vect_V* vector = (Vect_V*)malloc_fam(Vect_V, Vertice*, vectmp->tamano);
     if(!vector) {free(vectmp); return NULL;}
-    for(int i=0; i<vectmp->tamano; ++i) vector->vertices[i]=vectmp->vertices[i];
+    memcpy(vector->vertices, vectmp->vertices, sizeof(Vertice*)*vectmp->tamano);
     vector->tamano=vectmp->tamano;
     free(vectmp);
     return (const Vect_V*)vector;
@@ -352,10 +393,10 @@ static const Vect_V* grafo_d_buscar_vertices(const Grafo_D* grafo, Vertice ref) 
     De no ser asi el comportamiento de la funcion es indefinido.
 */
 static void grafo_d_eliminar_vertice(Grafo_D* grafo, Vertice* vt) {
-    Nodo_V* vptr = grafo->lista_ady, *vprev=NULL, *vtmp;
+    struct _nodo_v* vptr = grafo->lista_ady, *vprev=NULL, *vtmp;
     //Recorremos todos los vertices
     while(vptr!=NULL) {
-        Nodo_A* aptr = vptr->lista_ady, *aprev=NULL, *atmp;
+        struct _nodo_a* aptr = vptr->lista_ady, *aprev=NULL, *atmp;
         //Si el nodo actual contiene el vertice a eliminar
         if(vt==&(vptr->vt)) {
             //Borramos todas las aristas que salen del vertice
@@ -416,14 +457,14 @@ static void grafo_d_eliminar_vertice(Grafo_D* grafo, Vertice* vt) {
 /*  Regresa un vector dinamicamente alojado que contine todas las aristas del grafo.
     El vector debe ser liberado con una correspondiente llamada a free()
 */
-static Vect_A* grafo_d_get_aristas(const Grafo_D* grafo) {
-    Vect_A* vec = (Vect_A*)malloc(sizeof(Vect_A)+sizeof(Arista*)*grafo->tamano);
+static const Vect_A* grafo_d_get_aristas(const Grafo_D* grafo) {
+    Vect_A* vec = (Vect_A*)malloc_fam(Vect_A, Arista*, grafo->tamano);
     if(!vec) return NULL;
     vec->tamano=grafo->tamano;
     int i=0;
-    Nodo_V* vptr = grafo->lista_ady;
+    struct _nodo_v* vptr = grafo->lista_ady;
     while(vptr!=NULL) {
-        Nodo_A* aptr = vptr->lista_ady;
+        struct _nodo_a* aptr = vptr->lista_ady;
         while(aptr!=NULL) {
             vec->aristas[i]=&(aptr->ar);
             aptr=aptr->sig;
@@ -439,10 +480,10 @@ static Vect_A* grafo_d_get_aristas(const Grafo_D* grafo) {
     (identificador) de la arista como elemento unico del grafo.
 */
 static Arista* grafo_d_insertar_arista(Grafo_D* grafo, Arista ar, const Vertice* ini, const Vertice* fin) {
-    Nodo_A* nuevo = (Nodo_A*)malloc(sizeof(Nodo_A));
+    struct _nodo_a* nuevo = (struct _nodo_a*)malloc(sizeof(struct _nodo_a));
     if(!nuevo) return NULL;
     nuevo->ar=ar; nuevo->fin=NULL;
-    Nodo_V* vptr=grafo->lista_ady, *inicio=NULL;
+    struct _nodo_v* vptr=grafo->lista_ady, *inicio=NULL;
     //Encontramos los nodos correspondientes a ini y a fin
     while(nuevo->fin==NULL || inicio==NULL) {
         if(ini==&(vptr->vt)) inicio=vptr;
@@ -462,17 +503,17 @@ static Arista* grafo_d_insertar_arista(Grafo_D* grafo, Arista ar, const Vertice*
     dinamicamente de tamano 2 que contine ambas aristas. Debido a que el vector que regresa la funcion es
     dinamicamente alojado en memoria debe ser liberado con una llamada free()
 */
-static Vect_A* grafo_d_insertar_aristas_conjugadas(Grafo_D* grafo, Arista ar, const Vertice* ini, const Vertice* fin) {
-    Nodo_A* ini_fin = (Nodo_A*)malloc(sizeof(Nodo_A));
+static const Vect_A* grafo_d_insertar_aristas_conjugadas(Grafo_D* grafo, Arista ar, const Vertice* ini, const Vertice* fin) {
+    struct _nodo_a* ini_fin = (struct _nodo_a*)malloc(sizeof(struct _nodo_a));
     if(!ini_fin) return NULL;
-    Nodo_A* fin_ini = (Nodo_A*)malloc(sizeof(Nodo_A));
+    struct _nodo_a* fin_ini = (struct _nodo_a*)malloc(sizeof(struct _nodo_a));
     if(!fin_ini) {free(ini_fin); return NULL;}
-    Vect_A* vect = (Vect_A*)malloc(sizeof(Vect_A)+sizeof(Arista*)*2);
+    Vect_A* vect = (Vect_A*)malloc_fam(Vect_A, Arista*, 2);
     if(!vect) {free(ini_fin); free(fin_ini); return NULL;}
     vect->tamano=2;
     ini_fin->ar=fin_ini->ar=ar;
     ini_fin->fin=fin_ini->fin=NULL;
-    Nodo_V* vptr=grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(ini_fin->fin==NULL || fin_ini->fin==NULL) {
         if(ini==&(vptr->vt)) {
             fin_ini->fin=vptr;
@@ -499,13 +540,13 @@ static Vect_A* grafo_d_insertar_aristas_conjugadas(Grafo_D* grafo, Arista ar, co
     la informacion suministrada al paramentro ar. La funcion regresa si la insersion se realizo exitosamente.
 */
 static bool grafo_d_insertar_arcnj(Grafo_D* grafo, Arista ar, const Vertice* ini, const Vertice* fin) {
-    Nodo_A* ini_fin = (Nodo_A*)malloc(sizeof(Nodo_A));
+    struct _nodo_a* ini_fin = (struct _nodo_a*)malloc(sizeof(struct _nodo_a));
     if(!ini_fin) return false;
-    Nodo_A* fin_ini = (Nodo_A*)malloc(sizeof(Nodo_A));
+    struct _nodo_a* fin_ini = (struct _nodo_a*)malloc(sizeof(struct _nodo_a));
     if(!fin_ini) {free(ini_fin); return false;}
     ini_fin->ar=fin_ini->ar=ar;
     ini_fin->fin=fin_ini->fin=NULL;
-    Nodo_V* vptr=grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(ini_fin->fin==NULL || fin_ini->fin==NULL) {
         if(ini==&(vptr->vt)) {
             fin_ini->fin=vptr;
@@ -530,9 +571,9 @@ static bool grafo_d_insertar_arcnj(Grafo_D* grafo, Arista ar, const Vertice* ini
 */
 static Arista* grafo_d_buscar_arista(const Grafo_D* grafo, Arista ref) {
     assert(grafo->cmp_ar!=NULL);
-    Nodo_V* vptr = grafo->lista_ady;
+    struct _nodo_v* vptr = grafo->lista_ady;
     while(vptr!=NULL) {
-        Nodo_A* aptr = vptr->lista_ady;
+        struct _nodo_a* aptr = vptr->lista_ady;
         while(aptr!=NULL) {
             if(grafo->cmp_ar(&(aptr->ar),&ref)) {
                 return &(aptr->ar);
@@ -550,12 +591,12 @@ static Arista* grafo_d_buscar_arista(const Grafo_D* grafo, Arista ref) {
 */
 static const Vect_A* grafo_d_buscar_aristas(const Grafo_D* grafo, Arista ref) {
     assert(grafo->cmp_ar!=NULL);
-    Vect_A* vectmp = (Vect_A*)malloc(sizeof(Vect_A)+sizeof(Arista*)*(grafo->tamano));
+    Vect_A* vectmp = (Vect_A*)malloc_fam(Vect_A, Arista*, grafo->tamano);
     if(!vectmp) return NULL;
     vectmp->tamano=0;
-    Nodo_V* vptr = grafo->lista_ady;
+    struct _nodo_v* vptr = grafo->lista_ady;
     while(vptr!=NULL) {
-        Nodo_A* aptr = vptr->lista_ady;
+        struct _nodo_a* aptr = vptr->lista_ady;
         while(aptr!=NULL) {
             if(grafo->cmp_ar(&(aptr->ar), &ref)) {
                 vectmp->aristas[vectmp->tamano]=&(aptr->ar);
@@ -565,9 +606,9 @@ static const Vect_A* grafo_d_buscar_aristas(const Grafo_D* grafo, Arista ref) {
         }
         vptr=vptr->sig;
     }
-    Vect_A* vector = (Vect_A*)malloc(sizeof(Vect_A)+sizeof(Arista*)*(vectmp->tamano));
+    Vect_A* vector = (Vect_A*)malloc_fam(Vect_A, Arista*, vectmp->tamano);
     if(!vector) {free(vectmp); return NULL;}
-    for(int i=0; i<vectmp->tamano; ++i) vector->aristas[i]=vectmp->aristas[i];
+    memcpy(vector->aristas, vectmp->aristas, sizeof(Arista*)*vectmp->tamano);
     vector->tamano=vectmp->tamano;
     free(vectmp);
     return (const Vect_A*)vector;
@@ -575,9 +616,9 @@ static const Vect_A* grafo_d_buscar_aristas(const Grafo_D* grafo, Arista ref) {
 
 /*  Regresa la primera arista que tenga como inicio al vertice ini y de fin al vertice fin*/
 static Arista* grafo_d_buscar_arista_entre_vert(const Grafo_D* grafo, const Vertice* ini, const Vertice* fin) {
-    Nodo_V* vptr = grafo->lista_ady;
+    struct _nodo_v* vptr = grafo->lista_ady;
     while(ini!=&(vptr->vt)) vptr=vptr->sig;
-    Nodo_A* aptr = vptr->lista_ady;
+    struct _nodo_a* aptr = vptr->lista_ady;
     while(aptr!=NULL) {
         if(fin==&(aptr->fin->vt))
             return &(aptr->ar);
@@ -591,12 +632,12 @@ static Arista* grafo_d_buscar_arista_entre_vert(const Grafo_D* grafo, const Vert
     una llamada a la funcion free()
 */
 static const Vect_A* grafo_d_buscar_aristas_entre_vert(const Grafo_D* grafo, const Vertice* ini, const Vertice* fin) {
-    Nodo_V* vptr=grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(vptr!=NULL && ini!=&(vptr->vt)) vptr=vptr->sig;
-    Vect_A* vectmp = (Vect_A*)malloc(sizeof(Vect_A)+sizeof(Arista*)*vptr->grado_s);
+    Vect_A* vectmp = (Vect_A*)malloc_fam(Vect_A, Arista*, vptr->grado_s);
     if(!vectmp) return NULL;
     vectmp->tamano=0;
-    Nodo_A* aptr=vptr->lista_ady;
+    struct _nodo_a* aptr=vptr->lista_ady;
     while(aptr!=NULL) {
         if(fin==&(aptr->fin->vt)) {
             vectmp->aristas[vectmp->tamano]=&(aptr->ar);
@@ -604,9 +645,9 @@ static const Vect_A* grafo_d_buscar_aristas_entre_vert(const Grafo_D* grafo, con
         }
         aptr=aptr->sig;
     }
-    Vect_A* vector = (Vect_A*)malloc(sizeof(Vect_A)+sizeof(Arista*)*(vectmp->tamano));
+    Vect_A* vector = (Vect_A*)malloc_fam(Vect_A, Arista*, vectmp->tamano);
     if(!vector) {free(vectmp); return NULL;}
-    for(int i=0; i<vectmp->tamano; ++i) vector->aristas[i]=vectmp->aristas[i];
+    memcpy(vector->aristas, vectmp->aristas, sizeof(Arista*)*vectmp->tamano);
     vector->tamano=vectmp->tamano;
     free(vectmp);
     return (const Vect_A*)vector;
@@ -617,9 +658,9 @@ static const Vect_A* grafo_d_buscar_aristas_entre_vert(const Grafo_D* grafo, con
 */
 static Arista* grafo_d_buscar_arista_estricto(const Grafo_D* grafo, Arista ref, const Vertice* ini, const Vertice* fin) {
     assert(grafo->cmp_ar!=NULL);
-    Nodo_V* vptr = grafo->lista_ady;
+    struct _nodo_v* vptr = grafo->lista_ady;
     while(ini!=&(vptr->vt)) vptr=vptr->sig;
-    Nodo_A* aptr = vptr->lista_ady;
+    struct _nodo_a* aptr = vptr->lista_ady;
     while(aptr!=NULL) {
         if(fin==&(aptr->fin->vt) && grafo->cmp_ar(&(aptr->ar), &ref))
             return &(aptr->ar);
@@ -633,12 +674,12 @@ static Arista* grafo_d_buscar_arista_estricto(const Grafo_D* grafo, Arista ref, 
 */
 static const Vect_A* grafo_d_buscar_aristas_estricto(const Grafo_D* grafo, Arista ref, const Vertice* ini, const Vertice* fin) {
     assert(grafo->cmp_ar!=NULL);
-    Nodo_V* vptr=grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(vptr!=NULL && ini!=&(vptr->vt)) vptr=vptr->sig;
-    Vect_A* vectmp = (Vect_A*)malloc(sizeof(Vect_A)+sizeof(Arista*)*vptr->grado_s);
+    Vect_A* vectmp = (Vect_A*)malloc_fam(Vect_A, Arista*, vptr->grado_s);
     if(!vectmp) return NULL;
     vectmp->tamano=0;
-    Nodo_A* aptr=vptr->lista_ady;
+    struct _nodo_a* aptr=vptr->lista_ady;
     while(aptr!=NULL) {
         if(fin==&(aptr->fin->vt) && grafo->cmp_ar(&(aptr->ar), &ref)) {
             vectmp->aristas[vectmp->tamano]=&(aptr->ar);
@@ -646,9 +687,9 @@ static const Vect_A* grafo_d_buscar_aristas_estricto(const Grafo_D* grafo, Arist
         }
         aptr=aptr->sig;
     }
-    Vect_A* vector = (Vect_A*)malloc(sizeof(Vect_A)+sizeof(Arista*)*(vectmp->tamano));
+    Vect_A* vector = (Vect_A*)malloc_fam(Vect_A, Arista*, vectmp->tamano);
     if(!vector) {free(vectmp); return NULL;}
-    for(int i=0; i<vectmp->tamano; ++i) vector->aristas[i]=vectmp->aristas[i];
+    memcpy(vector->aristas, vectmp->aristas, sizeof(Arista*)*vectmp->tamano);
     vector->tamano=vectmp->tamano;
     free(vectmp);
     return (const Vect_A*)vector;
@@ -659,9 +700,9 @@ static const Vect_A* grafo_d_buscar_aristas_estricto(const Grafo_D* grafo, Arist
     comportamiento de esta funcio es indefinido
 */
 static void grafo_d_elminar_arista(Grafo_D* grafo, Arista* ar) {
-    Nodo_V* vptr = grafo->lista_ady;
+    struct _nodo_v* vptr = grafo->lista_ady;
     while(vptr!=NULL) {
-        Nodo_A* aptr = vptr->lista_ady, *aprev;
+        struct _nodo_a* aptr = vptr->lista_ady, *aprev;
         if(aptr!=NULL && ar==&(aptr->ar)) {
             vptr->lista_ady=aptr->sig;
             free(aptr);
@@ -690,20 +731,20 @@ static void grafo_d_elminar_arista(Grafo_D* grafo, Arista* ar) {
 
 /*Matriz de Adyacencia con referencias
 a los DATOS crudos de cada arista*/
-typedef struct matriz_ady {
+typedef struct matrizady_d {
     size_t orden;
     Arista* datos[];
 } MatrizAdy_D;
 
 /*Matriz de Adyacencia matematicamente
 correcta con valores NUMERICOS enteros*/
-typedef struct matriz_ady_mt {
+typedef struct matrizady_n {
     size_t orden;
     size_t datos[];
 } MatrizAdy_N;
 
 /*Matriz de PESOS*/
-typedef struct matriz_peso {
+typedef struct matrizady_p {
     size_t orden;
     peso_t datos[];
 } MatrizAdy_P;
@@ -723,16 +764,16 @@ typedef struct matriz_peso {
     primera arista encontrada
 */
 static MatrizAdy_D* grafo_d_generar_matriz_datos(const Grafo_D* grafo) {
-    MatrizAdy_D* matriz = (MatrizAdy_D*)malloc(sizeof(MatrizAdy_D)+
-        sizeof(Arista*)*grafo->orden*grafo->orden);
+    MatrizAdy_D* matriz = (MatrizAdy_D*)malloc_fam(
+        MatrizAdy_D, Arista*, grafo->orden*grafo->orden);
     if(!matriz) return NULL;
     matriz->orden=grafo->orden;
-    Nodo_V* ini=grafo->lista_ady;
+    struct _nodo_v* ini=grafo->lista_ady;
     for(int i=0; i<grafo->orden; ++i, ini=ini->sig) {
-        Nodo_V* fin=grafo->lista_ady;
+        struct _nodo_v* fin=grafo->lista_ady;
         for(int j=0; j<grafo->orden; ++j, fin=fin->sig) {
             Arista** ptr_celda=(matriz->datos)+i*grafo->orden+j;
-            Nodo_A* aptr=ini->lista_ady;
+            struct _nodo_a* aptr=ini->lista_ady;
             *ptr_celda=NULL;
             while(aptr!=NULL) {
                 if(fin==aptr->fin) { 
@@ -754,16 +795,16 @@ static MatrizAdy_D* grafo_d_generar_matriz_datos(const Grafo_D* grafo) {
     liberada medianteuna llamada a la funcion free()
 */
 static MatrizAdy_N* grafo_d_generar_matriz_ady(const Grafo_D* grafo) {
-    MatrizAdy_N* matriz = (MatrizAdy_N*)malloc(sizeof(MatrizAdy_N)+
-        sizeof(size_t)*grafo->orden*grafo->orden);
+    MatrizAdy_N* matriz = (MatrizAdy_N*)malloc_fam(
+        MatrizAdy_N, size_t, grafo->orden*grafo->orden);
     if(!matriz) return NULL;
     matriz->orden=grafo->orden;
-    Nodo_V* ini=grafo->lista_ady;
+    struct _nodo_v* ini=grafo->lista_ady;
     for(int i=0; i<grafo->orden; ++i, ini=ini->sig) {
-        Nodo_V* fin=grafo->lista_ady;
+        struct _nodo_v* fin=grafo->lista_ady;
         for(int j=0; j<grafo->orden; ++j, fin=fin->sig) {
             size_t* ptr_celda=(matriz->datos)+i*grafo->orden+j;
-            Nodo_A* aptr=ini->lista_ady;
+            struct _nodo_a* aptr=ini->lista_ady;
             *ptr_celda=0;
             while(aptr!=NULL) {
                 if(fin==aptr->fin) { 
@@ -786,16 +827,16 @@ static MatrizAdy_N* grafo_d_generar_matriz_ady(const Grafo_D* grafo) {
     vertices (multigrafos), tomando por defecto la primera arista encontrada
 */
 static MatrizAdy_P* grafo_d_generar_matriz_pesos(const Grafo_D* grafo) {
-    MatrizAdy_P* matriz = (MatrizAdy_P*)malloc(sizeof(MatrizAdy_P)+
-        sizeof(peso_t)*grafo->orden*grafo->orden);
+    MatrizAdy_P* matriz = (MatrizAdy_P*)malloc_fam(
+        MatrizAdy_P,peso_t , grafo->orden*grafo->orden);
     if(!matriz) return NULL;
     matriz->orden=grafo->orden;
-    Nodo_V* ini=grafo->lista_ady;
+    struct _nodo_v* ini=grafo->lista_ady;
     for(int i=0; i<grafo->orden; ++i, ini=ini->sig) {
-        Nodo_V* fin=grafo->lista_ady;
+        struct _nodo_v* fin=grafo->lista_ady;
         for(int j=0; j<grafo->orden; ++j, fin=fin->sig) {
             peso_t* ptr_celda=(matriz->datos)+i*grafo->orden+j;
-            Nodo_A* aptr=ini->lista_ady;
+            struct _nodo_a* aptr=ini->lista_ady;
             *ptr_celda=PESO_NO_ARISTA;
             while(aptr!=NULL) {
                 if(fin==aptr->fin) { 
@@ -809,21 +850,21 @@ static MatrizAdy_P* grafo_d_generar_matriz_pesos(const Grafo_D* grafo) {
     return matriz;
 }
 
-/*------------------------------Opraciones de busqueda de Caminos--------------------------------*/
+/*------------------------------Operaciones de busqueda de Caminos--------------------------------*/
 //  !!!ESTRUCTURA DE USO INTERNO!!!
-typedef struct _nodo_c {
+struct _nodo_c {
     struct _nodo_c* sig;
-    Nodo_V* vt_actual;
-    Nodo_A* ar_puente;
+    struct _nodo_v* vt_actual;
+    struct _nodo_a* ar_puente;
     struct _nodo_c* nd_padre;
     peso_t dist_orig;
-} _Nodo_C;
+};
 
 /*  !!!FUNCION DE USO INTERNO!!!
-    Busca en la lista de Nodos_C el Nodo_C que hace referencia a el Nodo_V
-    pasado como segundo argumento.
+    Busca en la lista de Nodos_C el Nodo_C que hace referencia a el
+    struct _nodo_v pasado como segundo argumento.
 */
-static _Nodo_C* _get_nodo_c_vertice(_Nodo_C* cptr, Nodo_V* vt) {
+static struct _nodo_c* _get_nodo_c_vertice(struct _nodo_c* cptr, struct _nodo_v* vt) {
     while(cptr!=NULL) {
         if(cptr->vt_actual==vt) return cptr;
         cptr=cptr->sig;
@@ -835,8 +876,8 @@ static _Nodo_C* _get_nodo_c_vertice(_Nodo_C* cptr, Nodo_V* vt) {
     Busca en la lista de Nodos_C el Nodo_C con el valor de dist_orig minimo 
     (y finito) en toda la lista.
 */
-static _Nodo_C* _get_nodo_c_minimo(_Nodo_C* cptr) {
-    _Nodo_C* minimo = cptr;
+static struct _nodo_c* _get_nodo_c_minimo(struct _nodo_c* cptr) {
+    struct _nodo_c* minimo = cptr;
     while(cptr!=NULL) {
         if(cptr->dist_orig < minimo->dist_orig)
             minimo=cptr;
@@ -852,8 +893,8 @@ static _Nodo_C* _get_nodo_c_minimo(_Nodo_C* cptr) {
     el puntero cptr. cptr debe ser la cabeza de la lista para evitar
     perdida de memoria
 */
-static void _liberar_lista_c(_Nodo_C* cptr) {
-    _Nodo_C* ctmp;
+static void _liberar_lista_c(struct _nodo_c* cptr) {
+    struct _nodo_c* ctmp;
     while(cptr!=NULL) {
         ctmp=cptr;
         cptr=cptr->sig;
@@ -984,6 +1025,35 @@ static inline Camino_D* camino_d_fconcatenar(Camino_D* c1, Camino_D* c2) {
     return tmp;
 }
 
+/*  !!!FUNCION DE USO INTERNO!!!!
+    Construye un Camino_D en base a la infomacion recolectada durante la ejecucion
+    de el algorimo de dijsktra. Se asume que nodo_fin es el nodo correspondiente a
+    un vertice que ya ha sido encontrado
+*/
+static inline Camino_D* _dijkstra_constuir_camino(const struct _nodo_c* nodo_fin) {
+    size_t saltos=0;
+    const struct _nodo_c* cptr=nodo_fin;
+    while(cptr->nd_padre!=NULL) {
+        ++saltos;
+        cptr=cptr->nd_padre;
+    }
+
+    Camino_D* camino = _camino_d_alloc(saltos);
+    if(!camino) return NULL;
+    camino->saltos=saltos;
+    camino->longitud=nodo_fin->dist_orig;
+    camino->vts[0]=&cptr->vt_actual->vt;
+    
+    cptr=nodo_fin;
+    for(size_t i=camino->saltos; i>0; --i) {
+        camino->vts[i]=&(cptr->vt_actual->vt);
+        camino->ars[i-1]=&(cptr->ar_puente->ar);
+        cptr=cptr->nd_padre;
+    }
+
+    return camino;
+}
+
 /*  Encuentra el camino mas corto entre el vertice ini y fin utilizando el algoritmo
     de Dijkstra. El camino se regresa como un struct tipo Camino_D dinamicamente almacenado
     en memoria y por lo tanto debera de liberarse utilizando la funcion camino_d_destruir.
@@ -991,16 +1061,15 @@ static inline Camino_D* camino_d_fconcatenar(Camino_D* c1, Camino_D* c2) {
     el los vertice ini y fin, la funcion regresa un camino invalido, no NULL, e igualmente
     debera ser liberado usando camino_d_destruir. 
 */
-static Camino_D* grafo_d_dijkstra(const Grafo_D* grafo, const Vertice* ini, const Vertice* fin) {
-    if(!grafo->calc_peso) return NULL;
+static Camino_D* grafo_d_dijkstra_unico(const Grafo_D* grafo, const Vertice* ini, const Vertice* fin) {
 
-    Nodo_V* vptr; Nodo_A* aptr; _Nodo_C* cptr;
-    _Nodo_C* visitados=NULL;
-    _Nodo_C* no_visitados=NULL;
+    struct _nodo_v* vptr; struct _nodo_a* aptr; struct _nodo_c* cptr;
+    struct _nodo_c* visitados=NULL;
+    struct _nodo_c* no_visitados=NULL;
     vptr=grafo->lista_ady;
     //Inicializamos listas de visitados y no visitados
     while(vptr!=NULL) {
-        cptr=(_Nodo_C*)malloc(sizeof(_Nodo_C));
+        cptr=(struct _nodo_c*)malloc(sizeof(struct _nodo_c));
         if(!cptr) {
             _liberar_lista_c(visitados);
             _liberar_lista_c(no_visitados);
@@ -1028,13 +1097,13 @@ static Camino_D* grafo_d_dijkstra(const Grafo_D* grafo, const Vertice* ini, cons
     /*----------------Parte Iterativa----------------
         Ejecutamos Dijkstra hasta encontrar el camino
         mas corto hasta el vertice fin */
-    _Nodo_C* nodo_ref = visitados;
+    struct _nodo_c* nodo_ref = visitados;
     while(fin!=&(nodo_ref->vt_actual->vt)) {
 
         //Para cada arista de salida del vertice
         aptr = nodo_ref->vt_actual->lista_ady;
         while(aptr!=NULL) {
-            _Nodo_C* nodo_fin = _get_nodo_c_vertice(no_visitados, aptr->fin);
+            struct _nodo_c* nodo_fin = _get_nodo_c_vertice(no_visitados, aptr->fin);
             if(nodo_fin!=NULL) {
                 peso_t dp=nodo_ref->dist_orig+grafo->calc_peso(grafo,&(aptr->ar));
                 if(dp < nodo_fin->dist_orig) {
@@ -1072,29 +1141,160 @@ static Camino_D* grafo_d_dijkstra(const Grafo_D* grafo, const Vertice* ini, cons
         }
     }
     _liberar_lista_c(no_visitados);
-
-    size_t saltos=0;
-    cptr=nodo_ref;
-    while(cptr->nd_padre!=NULL) {
-        ++saltos;
-        cptr=cptr->nd_padre;
+    Camino_D* camino = _dijkstra_constuir_camino(nodo_ref);
+    if(!camino) {
+        _liberar_lista_c(visitados);
+        return NULL;
     }
-
-    Camino_D* camino = _camino_d_alloc(saltos);
-    if(!camino) {_liberar_lista_c(visitados); return NULL;}
-    camino->saltos=saltos;
-    camino->longitud=nodo_ref->dist_orig;
-    camino->vts[0]=(Vertice*)ini;
-    
-    cptr=nodo_ref;
-    for(size_t i=camino->saltos; i>0; --i) {
-        camino->vts[i]=&(cptr->vt_actual->vt);
-        camino->ars[i-1]=&(cptr->ar_puente->ar);
-        cptr=cptr->nd_padre;
-    }
-    
     _liberar_lista_c(visitados);
     return camino;
+}
+
+struct vect_c{
+    size_t tamano;
+    Camino_D* caminos[];
+};
+
+static void vect_c_destruir(Vect_C* vector) {
+    for(int i=0; i<vector->tamano; ++i) {
+        if(vector->caminos[i]!=NULL)
+            free(vector->caminos[i]);
+    }
+    free(vector);
+} 
+
+static bool _vect_v_contiene_vt(const Vect_V* vector, const Vertice* vt) {
+    for(int i=0; i<vector->tamano; ++i)
+        if(vt==vector->vertices[i]) return true;
+    return false;
+}
+
+static bool _vect_c_esta_lleno(const Vect_C* vector) {
+    for(int i=0; i<vector->tamano; ++i)
+        if(vector->caminos[i]==NULL) return false;
+    return true;
+}
+
+
+/*  Encuentra los caminos mas cortos entre ini y cada vertice elemento del vector
+    finales. El orden de los caminos entre ini y finales[i] esta dado en orden 
+    acendente de menor longitud a mayor longiud. La estructura Vect_C regresada
+    por esta funcion debe ser liberada mediante un llamado a vect_c_destruir()
+*/
+static const Vect_C* grafo_d_dijkstra_multiple(const Grafo_D* grafo,
+    const Vertice* ini, const Vect_V* finales) {
+
+    Vect_C* vector = (Vect_C*)malloc_fam(Vect_C, Camino_D*, finales->tamano);
+    if(!vector) return NULL;
+    vector->tamano = finales->tamano;
+    memset(vector->caminos, 0, sizeof(Camino_D*)*vector->tamano);
+
+    struct _nodo_v* vptr; struct _nodo_a* aptr; struct _nodo_c* cptr;
+    struct _nodo_c* visitados=NULL;
+    struct _nodo_c* no_visitados=NULL;
+    vptr=grafo->lista_ady;
+    //Inicializamos listas de visitados y no visitados
+    while(vptr!=NULL) {
+        cptr=(struct _nodo_c*)malloc(sizeof(struct _nodo_c));
+        if(!cptr) {
+            free(vector);
+            _liberar_lista_c(visitados);
+            _liberar_lista_c(no_visitados);
+            return NULL;
+        }
+        if(ini!=&(vptr->vt)) {
+            cptr->sig=no_visitados;
+            cptr->vt_actual=vptr;
+            cptr->ar_puente=NULL;
+            cptr->nd_padre=NULL;
+            cptr->dist_orig=PESO_NO_ARISTA;
+            no_visitados=cptr;
+        }
+        else {
+            cptr->sig=NULL;
+            cptr->vt_actual=vptr;
+            cptr->ar_puente=NULL;
+            cptr->nd_padre=NULL;
+            cptr->dist_orig=0;
+            visitados=cptr;
+        }
+        vptr=vptr->sig;
+    }
+
+    /*----------------Parte Iterativa----------------
+        Ejecutamos Dijkstra hasta encontrar el camino
+        para todos los vertices en el vector fin*/
+    size_t i=0;
+    struct _nodo_c* nodo_ref = visitados;
+    while(true) {
+        /*Si el vertice que se encontro esta en la lista de finales
+        consturimos su camino y lo agremos al vector*/
+        if(_vect_v_contiene_vt(finales, &nodo_ref->vt_actual->vt)) {
+            Camino_D* camino = _dijkstra_constuir_camino(nodo_ref);
+            if(!camino) {
+                vect_c_destruir(vector);
+                _liberar_lista_c(visitados);
+                _liberar_lista_c(no_visitados);
+                return NULL;
+            }
+            vector->caminos[i]=camino;
+            ++i;
+        }
+        /*Si ya encontramos todos los caminos requeridos, salimos*/
+        if(_vect_c_esta_lleno(vector)) {
+            _liberar_lista_c(visitados);
+            _liberar_lista_c(no_visitados);
+            return vector;
+        }
+
+        //Para cada arista de salida del vertice
+        aptr = nodo_ref->vt_actual->lista_ady;
+        while(aptr!=NULL) {
+            struct _nodo_c* nodo_fin = _get_nodo_c_vertice(no_visitados, aptr->fin);
+            if(nodo_fin!=NULL) {
+                peso_t dp=nodo_ref->dist_orig+grafo->calc_peso(grafo,&(aptr->ar));
+                if(dp < nodo_fin->dist_orig) {
+                    nodo_fin->dist_orig = dp;
+                    nodo_fin->nd_padre  = nodo_ref;
+                    nodo_fin->ar_puente = aptr;
+                }
+            }
+            aptr=aptr->sig;
+        }
+
+        //Acualizar nodo_ref
+        nodo_ref = _get_nodo_c_minimo(no_visitados);
+
+        /*Si no existen vertices alcanzables llenamos los
+        camninos no encontrados con caminos nulos y regresamos*/
+        if(nodo_ref==NULL) {
+            _liberar_lista_c(visitados);
+            _liberar_lista_c(no_visitados);
+            for(; i<vector->tamano; ++i) {
+                vector->caminos[i]=camino_d_crear_nulo();
+                if(vector->caminos[i]==NULL) {
+                    vect_c_destruir(vector);
+                    return NULL;
+                }
+            }
+            return vector;
+        };
+
+        //Pasar nuevo nodo_ref de no_visitados a visitados
+        if(nodo_ref==no_visitados) {
+            no_visitados=no_visitados->sig;
+            nodo_ref->sig=visitados;
+            visitados=nodo_ref;
+        }
+        else {
+            cptr=no_visitados;
+            while(cptr->sig!=nodo_ref)
+                cptr=cptr->sig;
+            cptr->sig=nodo_ref->sig;
+            nodo_ref->sig=visitados;
+            visitados=nodo_ref;
+        }
+    }
 }
 
 /*-------------------------------Operaciones Miscelaneas---------------------------------*/
@@ -1109,11 +1309,11 @@ typedef enum {
     primer vertice con respecto al segundo en terminos de el enum orden_t (ANTES, DESPUES)
 */
 static void grafo_d_ordenar_vertices(Grafo_D* grafo, orden_t (*orden)(Vertice*, Vertice*)) { 
-    Nodo_V* lista_ordenada = NULL;
+    struct _nodo_v* lista_ordenada = NULL;
     while(grafo->lista_ady!=NULL) { 
-        Nodo_V* vptr=grafo->lista_ady;
+        struct _nodo_v* vptr=grafo->lista_ady;
         Vertice* ultimo=&(vptr->vt);
-        Nodo_V* prev_ultimo=NULL;
+        struct _nodo_v* prev_ultimo=NULL;
         while(vptr->sig!=NULL) {
             if(orden(&(vptr->sig->vt),ultimo)==DESPUES) {
                 ultimo=&(vptr->sig->vt);
@@ -1137,16 +1337,16 @@ static void grafo_d_ordenar_vertices(Grafo_D* grafo, orden_t (*orden)(Vertice*, 
     grafo->lista_ady=lista_ordenada;
 }
 /*  !!!FUNCION DE USO INTERNO!!!
-    Ordena la lista de ayacencia del Nodo_V pasado como primer argumento de acuerdo a la funcion
+    Ordena la lista de ayacencia del struct _nodo_v pasado como primer argumento de acuerdo a la funcion
     proporcionada como segundo argumento. La funcion orden debe regresar la posicion de el
     primer vertice con respecto al segundo en terminos de el enum orden_t (ANTES, DESPUES)
 */
-static void _grafo_d_ordenar_aristas(Nodo_V* nodo, orden_t (*orden)(Arista*, Arista*)) {
-    Nodo_A* lista_ordenada = NULL;
+static void _grafo_d_ordenar_aristas(struct _nodo_v* nodo, orden_t (*orden)(Arista*, Arista*)) {
+    struct _nodo_a* lista_ordenada = NULL;
     while(nodo->lista_ady!=NULL) {
-        Nodo_A* aptr=nodo->lista_ady;
+        struct _nodo_a* aptr=nodo->lista_ady;
         Arista* ultimo=&(aptr->ar);
-        Nodo_A* prev_ultimo=NULL;
+        struct _nodo_a* prev_ultimo=NULL;
         while(aptr->sig!=NULL) {
             if(orden(&(aptr->sig->ar),ultimo)==DESPUES) {
                 ultimo=&(aptr->sig->ar);
@@ -1178,7 +1378,7 @@ static void grafo_d_ordenar(Grafo_D* grafo,
     orden_t (*orden_vt)(Vertice*,Vertice*), orden_t  (*orden_ar)(Arista*, Arista*)) {
     
     grafo_d_ordenar_vertices(grafo, orden_vt);
-    Nodo_V* vptr=grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(vptr!=NULL) {
         _grafo_d_ordenar_aristas(vptr, orden_ar);
         vptr=vptr->sig;
@@ -1193,10 +1393,10 @@ static void grafo_d_ordenar(Grafo_D* grafo,
 static void grafo_d_print_debug(const Grafo_D* grafo) {
     printf("G: %p | orden:%lu, tamano:%lu\n",
         grafo, grafo->orden, grafo->tamano);
-    Nodo_V* vptr=grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(vptr!=NULL) {
         printf("*V:%p", &(vptr->vt));
-        Nodo_A* aptr=vptr->lista_ady;
+        struct _nodo_a* aptr=vptr->lista_ady;
         while(aptr!=NULL) {
             printf(" -> A:%p", &(aptr->ar));
             aptr=aptr->sig;
@@ -1214,12 +1414,12 @@ static void grafo_d_print_debug(const Grafo_D* grafo) {
 static void grafo_d_print_lista_ady(const Grafo_D* grafo, void (*print_vt)(Vertice*)) {
     printf("Grafo | orden:%lu, tamano:%lu\n",
         grafo->orden, grafo->tamano);
-    Nodo_V* vptr=grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(vptr!=NULL) {
         printf("*[");
         print_vt(&(vptr->vt));
         printf("]");
-        Nodo_A* aptr=vptr->lista_ady;
+        struct _nodo_a* aptr=vptr->lista_ady;
         while(aptr!=NULL) {
             printf(" -> (");
             print_vt(&(aptr->fin->vt));
@@ -1242,12 +1442,12 @@ static void grafo_d_print_lista_ady_pond(const Grafo_D* grafo,
     void (*print_vt)(Vertice*), void (*print_peso)(peso_t)) {
     printf("Grafo | orden:%lu, tamano:%lu\n",
         grafo->orden, grafo->tamano);
-    Nodo_V* vptr=grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(vptr!=NULL) {
         printf("*[");
         print_vt(&(vptr->vt));
         printf("]");
-        Nodo_A* aptr=vptr->lista_ady;
+        struct _nodo_a* aptr=vptr->lista_ady;
         while(aptr!=NULL) {
             printf(" -> (w:");
             print_peso(grafo->calc_peso(grafo,&(aptr->ar)));

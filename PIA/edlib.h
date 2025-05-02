@@ -27,19 +27,22 @@
 */
 
 #define EDLIB_RESETEAR_ERROR
+#define EDLIB_L_BUFFER_ERROR 256
+#define EDLIB_L_BUFFER_PROMPT 32
 #define EDLIB_SALIDA_ERROR stdout
 
 /*Esta MACRO debe ser definida en solo un unidad de traduccion (archivo .c)
 para que estas variables formen parte del estado de esa unidad y las demas
 unidades importen las variables desde la unida principal*/
 #ifdef EDLIB_MAIN
-    char _edlib_msj_error[256]="";
-    char _edlib_prompt[16]="> ";
+    char _edlib_msj_error[EDLIB_L_BUFFER_ERROR]="";
+    char _edlib_prompt[EDLIB_L_BUFFER_PROMPT]="> ";
 #else
-    extern char _edlib_msj_error[256];
-    extern char _edlib_prompt[16];
+    extern char _edlib_msj_error[EDLIB_L_BUFFER_ERROR];
+    extern char _edlib_prompt[EDLIB_L_BUFFER_PROMPT];
 #endif
 
+#define STR(x) #x
 #define max(a,b) ((a)>(b) ? (a):(b))
 #define min(a,b) ((a)<(b) ? (a):(b))
 #define en_rango(val, min, max) ((val) >= (min) && (val) <= (max))

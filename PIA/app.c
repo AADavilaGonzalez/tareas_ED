@@ -11,28 +11,38 @@
 
 typedef struct {
     char nombre[L_NOMBRE];
+    float peso_entrega;     //Ton
 } Ciudad;
 
 typedef struct {
     char nombre[L_NOMBRE];
-    float longitud;
-    float cuota;
+    float longitud;         //Km
+    float cuota;            //Mx
+    float velocidad_prom;   //Km/h
 } Carretera;
+
+typedef struct {
+    float costo_combustible;   
+    float reabastecimiento; 
+} ParamConfig;
 
 typedef struct {
     float peso;             //Ton
     float carga_max;        //Ton
     float combustible_max;  //L
     float rendimiento;      //Km/L
+    float velocidad_min;    //Km/h
+    float velocidad_max;    //Km/h
 } ParamVehiculo;
 
 typedef struct {
     float carga;            //Ton
     float combustible;      //L
-    float presupuesto;      //PesosMx
+    float presupuesto;      //Mx
 } ParamViaje;
 
 typedef struct {
+    ParamConfig config;
     ParamVehiculo vehiculo;
     ParamViaje viaje;
 } Contexto;
@@ -41,7 +51,7 @@ typedef struct {
 #include "edlib.h"
 #define STRUCT_VERTICE Ciudad
 #define STRUCT_ARISTA Carretera
-#define STRUCT_METADATA Contexto
+#define GRAFO_D_METADATA Contexto*
 #define DATO_PESO float
 #define PESO_NO_ARISTA INFINITY
 #include "grafo_d.h"
@@ -55,7 +65,7 @@ typedef struct {
     *val elemento de R+ U {0}
     *R elemento de R+
 */
-float logerp(float val, float R) {
+static inline float dlogerp(float val, float R) {
     return log(R+1-val)/log(R+1);
 }
 
@@ -65,10 +75,21 @@ float logerp(float val, float R) {
     del vehiculo establecido.
 */
 #define RENDIMIENTO_MIN 0.2f
-float calcular_rendimiento_actual(Contexto* contexto) {
-    float rm = RENDIMIENTO_MIN*contexto->vehiculo.rendimiento;
-    return  logerp(contexto->viaje.carga, contexto->vehiculo.carga_max)*
-            (contexto->vehiculo.rendimiento-rm)+(rm);
+static inline float calcular_rendimiento_actual(Contexto* contexto) {
+    return  dlogerp(contexto->viaje.carga, contexto->vehiculo.carga_max)*
+            (contexto->vehiculo.rendimiento-RENDIMIENTO_MIN*contexto->vehiculo.rendimiento)+
+            (RENDIMIENTO_MIN*contexto->vehiculo.rendimiento);
+}
+
+/*  Define la velocidad maxima actual del vehiculo como una interpolacion lineal entre
+    los valores de velocidad maxima y velocidad minima con respecto a la proporcion
+    entre carga actual y carga maxima
+*/
+static inline float calcular_vel_max_actual(Carretera* carretera, Contexto* contexto) {
+    float velocidad_vehiculo = contexto->vehiculo.velocidad_min+
+        (1-contexto->viaje.carga/contexto->vehiculo.carga_max)*
+        (contexto->vehiculo.velocidad_max-contexto->vehiculo.velocidad_min);
+    return velocidad_vehiculo < carretera->velocidad_prom ? velocidad_vehiculo : carretera->velocidad_prom;
 }
 
 bool comparar_ciudad_por_nombre(const Ciudad* c1, const Ciudad* c2) {
@@ -116,35 +137,35 @@ Grafo_D* incializar_mapa(void) {
     Vertice* san_luis = grafo_d_insertar_vertice(mapa, (Ciudad){"San Luis Potosi"});
     Vertice* tampico = grafo_d_insertar_vertice(mapa, (Ciudad){"Tampico"});
 
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 126.0f, 0}, piedras_negras, sabinas);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2", 176.0f, 0}, piedras_negras, nuevo_laredo);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 115.0f, 0}, sabinas, monclova);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2", 247.0f, 0}, nuevo_laredo, reynosa);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 194.0f, 0}, monclova, saltillo);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-53", 196.0f, 0}, monclova, monterrey);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 220.0f, 0}, nuevo_laredo, monterrey);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40", 110.0f, 0}, reynosa, china);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2", 91.4f, 0}, reynosa, matamoros);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40", 85.7f, 0}, saltillo, monterrey);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40", 122.0f, 0}, monterrey, china);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 121.0f, 0}, saltillo, san_roberto);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 80.8f, 0}, monterrey, montemorelos);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-35", 94.6f, 0}, china, montemorelos);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-97", 151.0f, 0}, reynosa, san_fernando);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101", 140.0f, 0}, matamoros, san_fernando);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 51.4f, 0}, montemorelos, linares);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58", 46.7f, 0}, san_roberto, galeana);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58", 73.1f, 0}, galeana, linares);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58", 104.0f, 0}, san_roberto, linares);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101", 179.0f, 0}, san_fernando, cd_victoria);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 134.0f, 0}, san_roberto, matehuala);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-29", 50.5f, 0}, matehuala, dr_arrollo);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 155.0f, 0}, linares, cd_victoria);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 192.0f, 0}, matehuala, san_luis);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101", 338.0f, 0}, san_luis, cd_victoria);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-70/75", 111.0f, 0}, cd_victoria, soto_marina);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-83", 237.0f, 0}, cd_victoria, tampico);
-    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-180/80", 275.0f, 0}, soto_marina, tampico);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 126.0f, 0, 80.0f}, piedras_negras, sabinas);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2", 176.0f, 0, 80.0f}, piedras_negras, nuevo_laredo);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 115.0f, 0, 80.0f}, sabinas, monclova);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2", 247.0f, 0, 80.0f}, nuevo_laredo, reynosa);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 194.0f, 0, 80.0f}, monclova, saltillo);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-53", 196.0f, 0, 80.0f}, monclova, monterrey);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 220.0f, 0, 80.0f}, nuevo_laredo, monterrey);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40", 110.0f, 0, 80.0f}, reynosa, china);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2", 91.4f, 0, 80.0f}, reynosa, matamoros);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40", 85.7f, 0, 80.0f}, saltillo, monterrey);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40", 122.0f, 0, 80.0f}, monterrey, china);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 121.0f, 0, 80.0f}, saltillo, san_roberto);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 80.8f, 0, 80.0f}, monterrey, montemorelos);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-35", 94.6f, 0, 80.0f}, china, montemorelos);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-97", 151.0f, 0, 80.0f}, reynosa, san_fernando);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101", 140.0f, 0, 80.0f}, matamoros, san_fernando);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 51.4f, 0, 80.0f}, montemorelos, linares);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58", 46.7f, 0, 80.0f}, san_roberto, galeana);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58", 73.1f, 0, 80.0f}, galeana, linares);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58", 104.0f, 0, 80.0f}, san_roberto, linares);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101", 179.0f, 0, 80.0f}, san_fernando, cd_victoria);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 134.0f, 0, 80.0f}, san_roberto, matehuala);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-29", 50.5f, 0, 80.0f}, matehuala, dr_arrollo);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 155.0f, 0, 80.0f}, linares, cd_victoria);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 192.0f, 0, 80.0f}, matehuala, san_luis);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101", 338.0f, 0, 80.0f}, san_luis, cd_victoria);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-70/75", 111.0f, 0, 80.0f}, cd_victoria, soto_marina);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-83", 237.0f, 0, 80.0f}, cd_victoria, tampico);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-180/80", 275.0f, 0, 80.0f}, soto_marina, tampico);
 
     #define N_VERTICES_INICIALES 20
     #define N_ARISTAS_INICIALES 58
@@ -154,13 +175,34 @@ Grafo_D* incializar_mapa(void) {
     }
     #undef N_VERTICES_INICIALES
     #undef N_ARISTAS_INICIALES
+
+    static Contexto contexto = {
+        (ParamConfig) {
+            .costo_combustible=25.0f,
+            .reabastecimiento=0.5f,
+        },
+        (ParamVehiculo){
+            .peso = 4.5f,
+            .carga_max = 50.0f,
+            .combustible_max = 1000.0f,
+            .rendimiento = 3.0f,
+            .velocidad_min = 30.0f,
+            .velocidad_max = 120.0f,
+        },
+        (ParamViaje){0}
+    };
+
+    mapa->contexto=&contexto;
+    grafo_d_set_cmp_vt(mapa, comparar_ciudad_por_nombre);
+    grafo_d_set_calc_peso(mapa, calcular_peso_por_distancia);
+
     return mapa;
 }
 
 void mostrar_ciudades(const Grafo_D* mapa) {
     clear();
     println("Lista de ciudades disponibes:");
-    Vect_V* ciudades = grafo_d_get_vertices(mapa);
+    const Vect_V* ciudades = grafo_d_get_vertices(mapa);
     if(!ciudades) {
         println("Se precento un error al cargar las ciudades, intentelo denuevo");
         flush();
@@ -168,57 +210,91 @@ void mostrar_ciudades(const Grafo_D* mapa) {
     }
     for(int i=0; i<ciudades->tamano; ++i)
         printf("%2d. %s\n", i+1, ciudades->vertices[i]->nombre);
-    free(ciudades);
+    vect_v_destruir(ciudades);
     flush();
     return;
 }
 
 void print_param_vehiculo(const ParamVehiculo* vehiculo) {
-    printf("Peso del Vehiculo(Ton): %.1f\n", vehiculo->peso);
-    printf("Capacidad de Carga(Ton): %.1f\n", vehiculo->carga_max);
-    printf("Capacidad de Combustible(L): %.1f\n", vehiculo->combustible_max);
-    printf("Rendimiento de Combustible(Km/L): %.2f\n", vehiculo->rendimiento);
+    printf("Peso del Vehiculo: %.1f Ton\n", vehiculo->peso);
+    printf("Capacidad de Carga: %.1f Ton\n", vehiculo->carga_max);
+    printf("Capacidad de Combustible: %.1f L\n", vehiculo->combustible_max);
+    printf("Rendimiento de Combustible: %.2f Km/L\n", vehiculo->rendimiento);
+    printf("Velocidad con Carga Maxima: %.1f Km/h\n", vehiculo->velocidad_min);
+    printf("Velocidad sin Carga Alguna: %.1f Km/h\n", vehiculo->velocidad_max);
 }
 
 void print_param_viaje(const ParamViaje* viaje) {
-    printf("Carga del Vehiculo(Ton): %.1f\n", viaje->carga);
-    printf("Combustible Inicial(L): %.1f\n", viaje->combustible);
-    printf("Presupuesto para el Viaje(Mx): %.2f\n", viaje->presupuesto);
+    printf("Peso de Carga: %.1f Ton\n", viaje->carga);
+    printf("Combustible: %.1f L\n", viaje->combustible);
+    printf("Presupuesto de Pejes: %.2f Mx\n", viaje->presupuesto);
 }
 
-void configurar_vehiculo(ParamVehiculo* vehiculo) {
+void print_menu_de_ayuda(void) {
+    
+}
+
+void configurar_parametros(Contexto* contexto) {
     while(true) {
         clear();
+        println("0. Desplegar Menu de Ayuda",
+                "-----------------------------------------",
+                "Parametros Generales:",
+                "1. Precio de Litro de Combustible",
+                "2. Razon de Reabastecimiento",
+                "-----------------------------------------");
         println("Parametros del Vehiculo:");
-        print_param_vehiculo(vehiculo); endl;
+        print_param_vehiculo(&contexto->vehiculo); endl;
         println("Seleccione el parametro que desea ajustar",
-                "1. Peso del Vehiculo",
-                "2. Capacidad de Carga",
-                "3. Capacidad de Combustible",
-                "4. Rendimiento",
-                "5. Salir");
+                "3. Peso del Vehiculo",
+                "4. Capacidad de Carga",
+                "5. Capacidad de Combustible",
+                "6. Rendimiento",
+                "7. Velocidad con Carga Maxima",
+                "8. Velocidad sin Carga Alguna",
+                "9. Salir");
         edlib_set_prompt(PROMPT_OPC);
         int opc = validar_int_en_rango(1, 5);
 
         edlib_set_prompt(PROMPT_DATO);
         switch(opc) {
+        case 0:
+            print_menu_de_ayuda();
+            break;
         case 1:
-            edlib_set_msj_error("El peso debe estar entre 1 y 12 toneladas");
-            vehiculo->peso = validar_float_en_rango(1, 12);
+            edlib_set_msj_error("El precio de combustible debe ser mayor a 0");
+            contexto->config.costo_combustible=validar_float_min(0.01f);
             break;
         case 2:
-            edlib_set_msj_error("La capacidad de carga debe estar entre 5 y 100 toneladas");
-            vehiculo->carga_max = validar_float_en_rango(0, 100);
+            edlib_set_msj_error("La razon de reabastecimiento debe estar entre 0.1 y 1");
+            contexto->config.reabastecimiento=validar_float_en_rango(0.1f, 1.0f);
             break;
         case 3:
-            edlib_set_msj_error("La capacidad de combustible debe estar entre 50 y 2000 litros");
-            vehiculo->combustible_max = validar_float_en_rango(50, 2000);
+            edlib_set_msj_error("El peso debe estar entre 1 y 12 toneladas");
+            contexto->vehiculo.peso = validar_float_en_rango(1.0f, 12.0f);
             break;
         case 4:
-            edlib_set_msj_error("El redimineto del vehiculo debe estar entre 0.5 y 6 Km/L");
-            vehiculo->rendimiento = validar_float_en_rango(0.5, 6);
+            edlib_set_msj_error("La capacidad de carga debe estar entre 5 y 100 toneladas");
+            contexto->vehiculo.carga_max = validar_float_en_rango(0.0f, 100.0f);
             break;
         case 5:
+            edlib_set_msj_error("La capacidad de combustible debe estar entre 50 y 2000 litros");
+            contexto->vehiculo.combustible_max = validar_float_en_rango(50.0f, 2000.0f);
+            break;
+        case 6:
+            edlib_set_msj_error("El redimineto del vehiculo debe estar entre 0.5 y 6 Km/L");
+            contexto->vehiculo.rendimiento = validar_float_en_rango(0.5f, 6.0f);
+            break;
+        case 7:
+            edlib_set_msj_error("La velocidad con carga maxima debe ser mayor a 20 Km/h ");
+            contexto->vehiculo.velocidad_min = validar_float_min(20.0f);
+            break;
+        case 8:
+            edlib_set_msj_error("La velocidad sin carga alguna debe ser mayor\n"
+                "o igual que la velocidad con carga maxima");
+            contexto->vehiculo.velocidad_max = validar_float_min(contexto->vehiculo.velocidad_min);
+            break;
+        case 9:
             return;
         }
     }
@@ -272,7 +348,7 @@ ParamViaje leer_parametros_viaje(const ParamVehiculo* vehiculo) {
             printf("Se recomienda no sobrepasar el limite de %.1f\n", LIMITE_PESO);
             println("Esta seguro que desea continuar?(1-Si|2-No)");
             edlib_set_prompt(PROMPT_OPC);
-            usuario_esta_seguro = (bool)(validar_int_en_rango(1,2)-1);
+            usuario_esta_seguro = !(bool)(validar_int_en_rango(1,2)-1);
         }
     }
     println("Introduzca la cantidad de combustible para el viaje en litros");
@@ -286,28 +362,15 @@ ParamViaje leer_parametros_viaje(const ParamVehiculo* vehiculo) {
     return viaje;
 }
 
-void print_viaje(const Camino_D* viaje) {
-    
-    printf("Viaje de %s a %s:\n",
-        camino_d_get_inicio(viaje)->nombre,
-        camino_d_get_fin(viaje)->nombre
-    );
-    for(int i=0; i<viaje->saltos; ++i) {
-        printf("Tomar %s hacia %s\n",
-            viaje->ars[i]->nombre,
-            viaje->vts[i+1]->nombre
-        );
-    }
-    flush();
-    return;
-}
-
+#define L_BUFFER_ERROR 128
 Lista_D* leer_ciudades_destino(const Grafo_D* mapa) {
     Lista_D* ciudades = lista_d_crear();
     if(!ciudades) return NULL;
-    
-    Ciudad buffer = {""};
+
     Ciudad* ciudad;
+    Ciudad buffer = {"",0};
+    char error[L_BUFFER_ERROR];
+
     println("Introduzca el nombre de la ciudad donde iniciara el viaje");
     edlib_set_prompt(PROMPT_DATO);
     leer_string(buffer.nombre, L_NOMBRE);
@@ -315,63 +378,250 @@ Lista_D* leer_ciudades_destino(const Grafo_D* mapa) {
         println("No se encontro ninguna ciudad con ese nombre");
         leer_string(buffer.nombre, L_NOMBRE);
     }
+    ciudad->peso_entrega=0;
     lista_d_insertar_fin(ciudades, ciudad);
-    endl;
-    println("Introduzca los nombres de las ciudades a visitar",
-            "en el orden en el que seran visitadas. Introduzca",
-            "una linea vacia para finalizar la captura");
-    while(leer_string(buffer.nombre, L_NOMBRE)) {
-        if((ciudad = grafo_d_buscar_vertice(mapa,buffer)))
-            lista_d_insertar_fin(ciudades, ciudad);
-        else
-            println("No se encontro ninguna ciudad con ese nombre");
+
+    float carga_restante;
+    bool usuario_esta_seguro = false;
+    while(!usuario_esta_seguro) {
+        carga_restante = mapa->contexto->viaje.carga;
+        endl;
+        println("Introduzca los nombres de las ciudades a visitar",
+                "Introduzca una linea vacia para finalizar la captura");
+        endl;
+        edlib_set_prompt("Ciudad"PROMPT_DATO);
+        while(leer_string(buffer.nombre, L_NOMBRE)) {
+            ciudad = grafo_d_buscar_vertice(mapa,buffer);
+            if(ciudad) {
+                snprintf(error, L_BUFFER_ERROR,
+                    "El peso de la entrega debe ser menor\n"
+                    "o igual a la carga restante: %.1f Ton",
+                    carga_restante);
+                edlib_set_prompt("Peso Entrega"PROMPT_DATO);
+                edlib_set_msj_error(error);
+                ciudad->peso_entrega = validar_float_en_rango(0, carga_restante);
+                carga_restante-=ciudad->peso_entrega;
+                lista_d_insertar_fin(ciudades, ciudad);
+            } else
+                println("No se encontro ninguna ciudad con ese nombre");
+            endl;
+            edlib_set_prompt("Ciudad"PROMPT_DATO);
+        }
+        if(en_rango(carga_restante, 0, 0.5))
+            usuario_esta_seguro = true;
+        else {
+            printf( "El peso restante de la carga del vehiculo\n"
+                    "al finalizar el viaje es de %.1f", carga_restante);
+            println("Esta seguro que desea continuar? (1-Si|2-No)");
+            edlib_set_prompt(PROMPT_OPC);
+            usuario_esta_seguro = !(bool)(validar_int_en_rango(1,2)-1);
+        }
     }
     return ciudades;
 }
 
-void print_camino_debug(Camino_D* camino) {
-    if(!camino) {
-        printf("Hubo un error con la alloc en el heap\n");
-        return;
+/*  Asigna todos los pesos de entrega de los vertices a 0*/
+void limpiar_pesos_de_entrega(Grafo_D* mapa) {
+    const Vect_V* vect = grafo_d_get_vertices(mapa);
+    for(int i=0; i<vect->tamano; ++i) {
+        vect->vertices[i]->peso_entrega=0;
     }
-    printf("vts: %p\n", camino->vts);
-    printf("ars: %p\n", camino->ars);
-    printf("saltos: %u\n", camino->saltos);
-    printf("longitud: %f\n", camino->longitud);
+    vect_v_destruir(vect);
 }
 
-Camino_D* viaje_secuencial(const Grafo_D* mapa) {
+typedef struct {
+    Contexto contexto;
+    Camino_D* camino;
+} Viaje;
+
+Viaje viaje_secuencial(const Grafo_D* mapa) {
     clear();
     println("Parametros del Vehiculo Actual:");
     print_param_vehiculo(&mapa->contexto->vehiculo);
     println("Desea continuar con esta configuracion?(1-Si|2-No)");
     edlib_set_prompt(PROMPT_OPC);
-    if(validar_int_en_rango(1,2)==2) return NULL;
+    if(validar_int_en_rango(1,2)==2) return (Viaje){(Contexto){0}, NULL};
+    endl;
+
+    println("Iniciando Viaje Generico:",
+            "El orden en el que se introduzcan las ciudades determinara",
+            "el orden en el que se visitarn las ciudades para hacer entregas");
     mapa->contexto->viaje = leer_parametros_viaje(&mapa->contexto->vehiculo);
+    Viaje viaje = {*(mapa->contexto), NULL};
 
     Lista_D* ciudades = leer_ciudades_destino(mapa);
-    Camino_D* viaje = camino_d_crear_trivial(lista_d_pop_inicio(ciudades));
+    Camino_D* camino = camino_d_crear_trivial(lista_d_pop_inicio(ciudades));
     while(!lista_d_isempty(ciudades)) {
-        Camino_D* segmento = grafo_d_dijkstra(mapa,
-            camino_d_get_fin(viaje),
+        Camino_D* segmento = grafo_d_dijkstra_unico(mapa,
+            camino_d_get_fin(camino),
             lista_d_get_inicio(ciudades)
         );
         for(int i=0; i<segmento->saltos; ++i) {
-            if(mapa->contexto->viaje.presupuesto >= segmento->ars[i]->cuota) {
-                mapa->contexto->viaje.presupuesto -= segmento->ars[i]->cuota;
+            float consumo = segmento->ars[i]->longitud/
+                calcular_rendimiento_actual(mapa->contexto);
+            float peaje = segmento->ars[i]->cuota;
+            //Consumir Tanque inicial, rellenar con una fraccion del tanque 
+            if(mapa->contexto->viaje.combustible > consumo) {
+                mapa->contexto->viaje.combustible-=consumo;
+            } else {
+                mapa->contexto->viaje.combustible=
+                    mapa->contexto->config.reabastecimiento*
+                    mapa->contexto->vehiculo.combustible_max;
+            }
+            //Encontrar otra ruta si se nos acaba el presupuesto
+            if(mapa->contexto->viaje.presupuesto >= peaje) {
+                mapa->contexto->viaje.presupuesto-=peaje;
             } else {
                 segmento = camino_d_frecortar(segmento, i);
                 break;
             }
         }
-        viaje = camino_d_fconcatenar(viaje, segmento);
-        if(camino_d_get_fin(viaje)==lista_d_get_inicio(ciudades))
+        camino = camino_d_fconcatenar(camino, segmento);
+        if(camino_d_get_fin(camino)==lista_d_get_inicio(ciudades)) {
+            //Actualizar carga cuando llegamos al destino
+            mapa->contexto->viaje.carga-=camino_d_get_fin(camino)->peso_entrega;
             lista_d_eliminar_inicio(ciudades);
+        }
     }
+
+    viaje.camino=camino;
+    mapa->contexto->viaje=(ParamViaje){0};
     lista_d_destruir(ciudades);
     return viaje;
 }
 
-Camino_D* viaje_generico(const Grafo_D* mapa) {
-    return NULL;
+Viaje viaje_generico(const Grafo_D* mapa) {
+    clear();
+    println("Parametros del Vehiculo Actual:");
+    print_param_vehiculo(&mapa->contexto->vehiculo);
+    println("Desea continuar con esta configuracion?(1-Si|2-No)");
+    edlib_set_prompt(PROMPT_OPC);
+    if(validar_int_en_rango(1,2)==2) return (Viaje){(Contexto){0}, NULL};
+    endl;
+
+    println("Iniciando Viaje Generico",
+            "Las ciudades que se ingresen a continuacion se visitaran en",
+            "un el orden mas conveniente para realizar las entregas");
+    mapa->contexto->viaje = leer_parametros_viaje(&mapa->contexto->vehiculo);
+    Viaje viaje = {*(mapa->contexto), NULL};
+
+    Lista_D* ciudades = leer_ciudades_destino(mapa);
+    Camino_D* camino = camino_d_crear_trivial(lista_d_pop_inicio(ciudades));
+    while(!lista_d_isempty(ciudades)) {
+        Camino_D* segmento = grafo_d_dijkstra_unico(mapa,
+            camino_d_get_fin(camino),
+            lista_d_get_inicio(ciudades)
+        );
+        for(int i=0; i<segmento->saltos; ++i) {
+            float consumo = segmento->ars[i]->longitud/
+                calcular_rendimiento_actual(mapa->contexto);
+            float peaje = segmento->ars[i]->cuota;
+            //Consumir Tanque inicial, rellenar con una fraccion del tanque 
+            if(mapa->contexto->viaje.combustible > consumo) {
+                mapa->contexto->viaje.combustible-=consumo;
+            } else {
+                mapa->contexto->viaje.combustible=
+                    mapa->contexto->config.reabastecimiento*
+                    mapa->contexto->vehiculo.combustible_max;
+            }
+            //Encontrar otra ruta si se nos acaba el presupuesto
+            if(mapa->contexto->viaje.presupuesto >= peaje) {
+                mapa->contexto->viaje.presupuesto-=peaje;
+            } else {
+                segmento = camino_d_frecortar(segmento, i);
+                break;
+            }
+        }
+        camino = camino_d_fconcatenar(camino, segmento);
+        if(camino_d_get_fin(camino)==lista_d_get_inicio(ciudades)) {
+            //Actualizar carga cuando llegamos al destino
+            mapa->contexto->viaje.carga-=camino_d_get_fin(camino)->peso_entrega;
+            lista_d_eliminar_inicio(ciudades);
+        }
+    }
+
+    viaje.camino=camino;
+    mapa->contexto->viaje=(ParamViaje){0};
+    lista_d_destruir(ciudades);
+    return viaje;
+}
+
+void print_viaje(Viaje viaje) {    
+    struct {
+        float distancia;
+        float tiempo;
+        float combustible;
+        float peaje;
+        float gastos;
+    } total={0};
+
+    struct {
+        float tiempo;
+        float combustible;
+        float combustible_tanque;
+        float combustible_transito;
+    } tmp={0};
+
+    clear();
+    println("------------Resumen del Viaje------------"); endl;
+
+    println("Parametros Iniciales:");
+    print_param_viaje(&viaje.contexto.viaje);
+    printf("Ciudad de Inicio: %s\n", camino_d_get_inicio(viaje.camino)->nombre);
+    endl;
+
+    for(int i=0; i<viaje.camino->saltos; ++i) {
+        Carretera* carretera = viaje.camino->ars[i];
+        Ciudad* ciudad = viaje.camino->vts[i+1];
+        printf("Tomar %s hacia %s\n", carretera->nombre, ciudad->nombre);
+
+        printf("Distancia Recorrida: %.1f Km\n", carretera->longitud);
+        total.distancia += carretera->longitud;
+
+        tmp.tiempo = carretera->longitud/
+            calcular_vel_max_actual(carretera, &viaje.contexto);
+        printf("Tiempo Estimado: %.1f Hrs\n", tmp.tiempo);
+        total.tiempo += tmp.tiempo;
+
+        tmp.combustible = carretera->longitud/
+            calcular_rendimiento_actual(&viaje.contexto);
+        printf("Combustible Consumido: %.1f L\n", tmp.combustible);
+        total.combustible += tmp.combustible;
+        
+        if(carretera->cuota!=0.0f) {
+            printf("Peaje: %.2f Mx\n", carretera->cuota);
+            total.peaje += carretera->cuota;
+        }
+
+        if(ciudad->peso_entrega!=0.0f) {
+            printf("Se realizo una entrega en %s\n", ciudad->nombre);
+            printf("Peso de entrega: %.1f Ton\n", ciudad->peso_entrega);
+        }
+        endl;
+    }
+    endl;
+
+    println("-------------Desglose Final--------------");
+    printf("Distancia Total Recorrida: %0.1f Km\n", total.distancia);
+    printf("Tiempo Total Estimado: %0.1f Hrs\n", total.tiempo);
+    printf("Combustible Total Consumido: %0.1f L\n", total.combustible);
+    tmp.combustible_transito = total.combustible-viaje.contexto.viaje.combustible;
+    if(tmp.combustible_transito >= 0.0f) {
+        tmp.combustible_tanque = viaje.contexto.viaje.combustible;
+    } else {
+        tmp.combustible_tanque = total.combustible;
+        tmp.combustible_transito = 0.0f;
+    }
+    printf("  *Inicialmente en el Tanque: %0.1f L\n", tmp.combustible_tanque);
+    printf("  *Comprada en Transito: %0.1f L\n", tmp.combustible_transito);
+    printf("Total de Pejes Pagados: %0.1f Mx\n", total.peaje);
+    endl;
+
+    total.gastos = total.peaje+total.combustible*
+        viaje.contexto.config.costo_combustible;
+    printf("Considerando el precio decombustible como %.2f Mx\n",
+            viaje.contexto.config.costo_combustible);
+    printf("La cantida de gastos fue: %.2f\n", total.gastos);
+    flush();
+    return;
 }
