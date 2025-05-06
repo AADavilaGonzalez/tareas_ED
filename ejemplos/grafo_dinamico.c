@@ -152,7 +152,7 @@ void agregar_ciudad(Grafo_D* mapa) {
         return;
     }
     println("Introduzca la poblacion de la ciudad a insertar");
-    buffer.poblacion = (size_t)validar_uint();
+    buffer.poblacion = (size_t)validar_int_en_rango(0,999999999);
     if(grafo_d_insertar_vertice(mapa, buffer))
         println("La ciudad se incorporo al mapa exitosamente");
     else
