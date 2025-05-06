@@ -650,12 +650,13 @@ static Vect_A* grafo_d_buscar_aristas_entre_vert(const Grafo_D* grafo, const Ver
 */
 static Arista* grafo_d_buscar_arista_estricto(const Grafo_D* grafo, Arista ref, const Vertice* ini, const Vertice* fin) {
     assert(grafo->cmp_ar!=NULL);
-    struct _nodo_v* vptr = grafo->lista_ady;
+    struct _nodo_v* vptr=grafo->lista_ady;
     while(ini!=&vptr->vt) vptr=vptr->sig;
-    struct _nodo_a* aptr = vptr->lista_ady;
+    struct _nodo_a* aptr=vptr->lista_ady;
     while(aptr!=NULL) {
         if(fin==&aptr->fin->vt && grafo->cmp_ar(&aptr->ar, &ref))
             return &aptr->ar;
+        aptr=aptr->sig;
     }
     return NULL;
 }
@@ -667,7 +668,7 @@ static Arista* grafo_d_buscar_arista_estricto(const Grafo_D* grafo, Arista ref, 
 static Vect_A* grafo_d_buscar_aristas_estricto(const Grafo_D* grafo, Arista ref, const Vertice* ini, const Vertice* fin) {
     assert(grafo->cmp_ar!=NULL);
     struct _nodo_v* vptr=grafo->lista_ady;
-    while(vptr!=NULL && ini!=&vptr->vt) vptr=vptr->sig;
+    while(ini!=&vptr->vt) vptr=vptr->sig;
     Vect_A* vectmp = (Vect_A*)malloc_fam(Vect_A, Arista*, vptr->grado_s);
     if(!vectmp) return NULL;
     vectmp->tamano=0;
