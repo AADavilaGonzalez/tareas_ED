@@ -9,28 +9,6 @@
 #include <limits.h>
 #include <assert.h>
 
-/*  Declaracion anticipada de la interfaz publica*/
-struct grafo_d;
-typedef struct grafo_d Grafo_D;
-
-struct vect_v;
-typedef struct vect_v Vect_V;
-struct vect_a;
-typedef struct vect_a Vect_A;
-struct vect_c;
-typedef struct vect_c Vect_C;
-
-struct matrizady_d;
-typedef struct matrizady_d MatrizAdy_D;
-struct matrizady_n;
-typedef struct matrizady_n MatrizAdy_N;
-struct matrizady_p;
-typedef struct matrizady_p MatrizAdy_P;
-
-
-#define malloc_fam(tipo_estructura, tipo_elemento, tamano) \
-    malloc(sizeof(tipo_estructura)+sizeof(tipo_elemento)*tamano)
-
 /*  LIBRERIA DE GRAFOS DINAMICOS GRAFO_D
     Esta es una libreria de tipo cabezera que implementa el tipo de dato abstracto
     Grafo_D mediante una lista de adyacencia. Su alcance es limitado ya que las operaciones
@@ -127,12 +105,15 @@ typedef struct matrizady_p MatrizAdy_P;
 #define MetaData GRAFO_D_METADATA
 #endif
 
+#define malloc_fam(tipo_estructura, tipo_elemento, tamano) \
+    malloc(sizeof(tipo_estructura)+sizeof(tipo_elemento)*tamano)
+
 /*----------------------Definicion de los tipos de datos de interfaz---------------------*/
 
-struct vect_v {
+typedef struct vect_v{
     size_t tamano;
     Vertice* vertices[];
-};
+} Vect_V;
 
 /*  Crea un vector estatico en el heap capaz de contener hasta 'tamano' verices
     No es posible modificar el tamano del vector despues de crearlo
@@ -145,10 +126,10 @@ static inline Vect_V* vect_v_crear(size_t tamano) {
     return vect;
 }
 
-struct vect_a {
+typedef struct vect_a {
     size_t tamano;
     Arista* aristas[];
-};
+} Vect_A;
 
 /*  Crea un vector estatico en el heap capaz de contener hasta 'tamano' verices
     No es posible modificar el tamano del vector despues de crearlo
@@ -1143,10 +1124,10 @@ static Camino_D* grafo_d_dijkstra_unico(const Grafo_D* grafo, const Vertice* ini
     return camino;
 }
 
-struct vect_c{
+typedef struct vect_c{
     size_t tamano;
     Camino_D* caminos[];
-};
+} Vect_C;
 
 static void vect_c_destruir(Vect_C* vector) {
     for(int i=0; i<vector->tamano; ++i) {
