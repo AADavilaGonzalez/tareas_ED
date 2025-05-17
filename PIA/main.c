@@ -1,4 +1,5 @@
 #include "app.c"
+#include "grafo_d.h"
 
 int main(void) {
     
@@ -35,7 +36,7 @@ int main(void) {
             viaje = viaje_secuencial(mapa);
             if(viaje.camino!=NULL) {
                 print_viaje(viaje);
-                free(viaje.camino);
+                camino_d_destruir(viaje.camino);
             }
             limpiar_pesos_de_entrega(mapa);
             break;
@@ -43,7 +44,7 @@ int main(void) {
             viaje = viaje_generico(mapa);
             if(viaje.camino!=NULL) {
                 print_viaje(viaje);
-                free(viaje.camino);
+                camino_d_destruir(viaje.camino);
             }
             limpiar_pesos_de_entrega(mapa);
             break;

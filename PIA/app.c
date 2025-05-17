@@ -22,8 +22,8 @@ typedef struct {
 } Carretera;
 
 typedef struct {
-    float costo_combustible;   
-    float reabastecimiento; 
+    float costo_combustible;//Mx/L   
+    float reabastecimiento; //*prop*
 } ParamConfig;
 
 typedef struct {
@@ -58,39 +58,37 @@ typedef struct {
 #define DATO_LISTA Ciudad*
 #include "lista_d.h"
 
-/*  Funcion de interpolacion logaritmica por distancia del origen
-    valores cerca de 0 regresan valores cercanos a 1
-    valores < R cerca de R regresan valores cercanos a 0
-    *Rango: [0-L]
-    *val elemento de R+ U {0}
-    *R elemento de R+
-*/
+/*  Funcion de interpolacion logaritmica por distancia del origen valores cerca de 0 regresan
+    valores cercanos a 1, valores < R cerca de R regresan valores cercanos a 0
+    *val elemento de [0,R]
+    *R elemento de (0, inf)                                                                         */
 static inline float dlogerp(float val, float R) {
     return log(R+1-val)/log(R+1);
 }
 
-/*  Define el rendimineto actual del vehiculo como una interpolacion entre el
-    rendimineto base(m) y una fraccion del rendimiento base (RENDIMINTO_MIN*m) con
-    respecto a una relacion logaritmica entre la carga actual y el peso de carga maximo
-    del vehiculo establecido.
-*/
+
+/*  Define el rendimineto actual del vehiculo como una interpolacion entre el rendimineto base(m)
+    y una fraccion del rendimiento base (RENDIMINTO_MIN*m) con respecto a una relacion logaritmica
+    entre la carga actual y el peso de carga maximo del vehiculo establecido.                       */
 #define RENDIMIENTO_MIN 0.2f
-static inline float calcular_rendimiento_actual(Contexto* contexto) {
+static inline float calcular_rendimiento_actual(const Contexto* contexto) {
     return  dlogerp(contexto->viaje.carga, contexto->vehiculo.carga_max)*
             (contexto->vehiculo.rendimiento-RENDIMIENTO_MIN*contexto->vehiculo.rendimiento)+
             (RENDIMIENTO_MIN*contexto->vehiculo.rendimiento);
 }
 
-/*  Define la velocidad maxima actual del vehiculo como una interpolacion lineal entre
-    los valores de velocidad maxima y velocidad minima con respecto a la proporcion
-    entre carga actual y carga maxima
-*/
-static inline float calcular_vel_max_actual(Carretera* carretera, Contexto* contexto) {
+
+/*  Define la velocidad maxima a la que puede ir el vehiculo como una interpolacion lineal entre
+    los valores de velocidad maxima y velocidad minima con respecto a la proporcion entre carga
+    actual y carga maxima. Se elige el minimo entre este valor y el promedio de velocidad de la
+    carreterra por la que se circula                                                                */
+static inline float calcular_velocidad_actual(const Carretera* carretera, const Contexto* contexto) {
     float velocidad_vehiculo = contexto->vehiculo.velocidad_min+
         (1-contexto->viaje.carga/contexto->vehiculo.carga_max)*
         (contexto->vehiculo.velocidad_max-contexto->vehiculo.velocidad_min);
-    return velocidad_vehiculo < carretera->velocidad_prom ? velocidad_vehiculo : carretera->velocidad_prom;
+    return min(velocidad_vehiculo, carretera->velocidad_prom);
 }
+
 
 bool comparar_ciudad_por_nombre(const Ciudad* c1, const Ciudad* c2) {
     if(strcmp(c1->nombre,c2->nombre)==0) 
@@ -99,18 +97,22 @@ bool comparar_ciudad_por_nombre(const Ciudad* c1, const Ciudad* c2) {
 }
 
 float calcular_peso_por_costo(const Grafo_D* grafo, const Carretera* ar) {
-    return 1;
+    if(ar->cuota > grafo->contexto->viaje.presupuesto) return INFINITY;
+    return  ar->cuota+
+            (ar->longitud/calcular_rendimiento_actual(grafo->contexto))
+            *grafo->contexto->config.costo_combustible;
 }
 
 float calcular_peso_por_tiempo(const Grafo_D* grafo, const Carretera* ar) {
-    return 1;
+    if(ar->cuota > grafo->contexto->viaje.presupuesto) return INFINITY;
+    return ar->longitud/calcular_velocidad_actual(ar, grafo->contexto);
 }
 
 float calcular_peso_por_distancia(const Grafo_D* grafo, const Carretera* ar) {
-    if(ar->cuota <= grafo->contexto->viaje.presupuesto)
-        return ar->longitud;
-    return INFINITY;
+    if(ar->cuota > grafo->contexto->viaje.presupuesto) return INFINITY;
+    return ar->longitud;
 }
+
 
 Grafo_D* incializar_mapa(void) {
     Grafo_D* mapa = grafo_d_crear();
@@ -186,7 +188,7 @@ Grafo_D* incializar_mapa(void) {
             .carga_max = 50.0f,
             .combustible_max = 1000.0f,
             .rendimiento = 3.0f,
-            .velocidad_min = 30.0f,
+            .velocidad_min = 80.0f,
             .velocidad_max = 120.0f,
         },
         (ParamViaje){0}
@@ -202,7 +204,7 @@ Grafo_D* incializar_mapa(void) {
 void mostrar_ciudades(const Grafo_D* mapa) {
     clear();
     println("Lista de ciudades disponibes:");
-    const Vect_V* ciudades = grafo_d_get_vertices(mapa);
+    Vect_V* ciudades = grafo_d_get_vertices(mapa);
     if(!ciudades) {
         println("Se precento un error al cargar las ciudades, intentelo denuevo");
         flush();
@@ -215,84 +217,140 @@ void mostrar_ciudades(const Grafo_D* mapa) {
     return;
 }
 
+void print_ayuda_parmetros(void) {
+    clear();
+    println("Este menu permite modificar los parametros correpondientes a los valores"  ,
+            "que  el  programa  toma  en  cuenta  al momento de realizar algun viaje."  ,
+            "Modifique  los  parametros  de  acuerdo  a  sus necesidades para modelar"  ,
+            "adecuadamente los viajes generados por el programa"                        ,
+            ""                                                                          ,
+            "Resumen de los parametros disponibles"                                     ,
+            ""                                                                          ,
+            ""                                                                          ,
+            "Pararametros generales:"                                                   ,
+            "----------------------Costo por litro de combustible--------------------"  ,
+            "  El precio de un litro de combustible en pesos mexicanos"                 ,
+            ""                                                                          ,
+            "--------------------Combustible Reabastecido por Carga------------------"  ,
+            "  La cantidad de combustible que se recarga en cada parada durante el"     ,
+            "  viaje cuando se termina el combustible inicialmente asignado"            ,
+            ""                                                                          ,
+            ""                                                                          ,
+            "Parametros del Vehiculo:"                                                  ,
+            "-----------------------------Peso del Vehiculo--------------------------"  ,
+            "  El peso del vehiculo en toneladas"                                       ,
+            ""                                                                          ,
+            "----------------------------Capacidad de Carga--------------------------"  ,
+            "  La cacidad maximade carga del vehiculo en toneladas"                     ,
+            ""                                                                          ,
+            "-------------------------Capacidad de Combustible-----------------------"  ,
+            "  La capacidad maxima de combustible del vehiculo en litros"               ,
+            ""                                                                          ,
+            "------------------------Rendimiento de Combustible----------------------"  ,
+            "  El rendimiento que tiene el vehiculo en Km/L cuando se encuentra"        ,
+            "  completamente sin carga"                                                 ,
+            "------------------------Velocidad con Carga Maxima----------------------"  ,
+            "  La velocidad maxima a la que puede llegar el vehiculo cuando se"         ,
+            "  encuentra completamente cargado"                                         ,
+            ""                                                                          ,
+            "------------------------Velocidad sin Carga Alguna----------------------"  ,
+            "  La velocidad maxima a la que puede llegar el vehiculo cuando se"         ,
+            "  se encuentra completamente sin carga"                                    ,
+        );
+    flush();
+}
+
+void print_param_config(const ParamConfig* config, const ParamVehiculo* vehiculo) {
+    printf("Costo por litro de Combustible:     %-6.2f Mx\n", config->costo_combustible);
+    printf("Combustible Reabastecido por Carga: %-6.1f L\n",
+        config->reabastecimiento*vehiculo->combustible_max);
+}
+
 void print_param_vehiculo(const ParamVehiculo* vehiculo) {
-    printf("Peso del Vehiculo: %.1f Ton\n", vehiculo->peso);
-    printf("Capacidad de Carga: %.1f Ton\n", vehiculo->carga_max);
-    printf("Capacidad de Combustible: %.1f L\n", vehiculo->combustible_max);
-    printf("Rendimiento de Combustible: %.2f Km/L\n", vehiculo->rendimiento);
-    printf("Velocidad con Carga Maxima: %.1f Km/h\n", vehiculo->velocidad_min);
-    printf("Velocidad sin Carga Alguna: %.1f Km/h\n", vehiculo->velocidad_max);
+    printf("Peso del Vehiculo:                  %-6.1f Ton\n", vehiculo->peso);
+    printf("Capacidad de Carga:                 %-6.1f Ton\n", vehiculo->carga_max);
+    printf("Capacidad de Combustible:           %-6.1f L\n", vehiculo->combustible_max);
+    printf("Rendimiento de Combustible:         %-6.2f Km/L\n", vehiculo->rendimiento);
+    printf("Velocidad con Carga Maxima:         %-6.1f Km/h\n", vehiculo->velocidad_min);
+    printf("Velocidad sin Carga Alguna:         %-6.1f Km/h\n", vehiculo->velocidad_max);
 }
 
 void print_param_viaje(const ParamViaje* viaje) {
-    printf("Peso de Carga: %.1f Ton\n", viaje->carga);
-    printf("Combustible: %.1f L\n", viaje->combustible);
-    printf("Presupuesto de Pejes: %.2f Mx\n", viaje->presupuesto);
+    printf("Peso de Carga:                      %.1f Ton\n", viaje->carga);
+    printf("Combustible:                        %.1f L\n", viaje->combustible);
+    printf("Presupuesto de Pejes:               %.2f Mx\n", viaje->presupuesto);
 }
 
-void print_menu_de_ayuda(void) {
-    
-}
 
-void configurar_parametros(Contexto* contexto) {
+void configurar_parametros(Contexto* cntx) {
     while(true) {
         clear();
+        println("Seleccione la opcion correspondiente al",
+                "parametro que desea ajustar"); endl;
+
         println("0. Desplegar Menu de Ayuda",
-                "-----------------------------------------",
-                "Parametros Generales:",
-                "1. Precio de Litro de Combustible",
-                "2. Razon de Reabastecimiento",
-                "-----------------------------------------");
+                "-----------------------------------------------"); endl;
+
+        println("Parametros Generales:");
+        print_param_config(&cntx->config, &cntx->vehiculo);      endl;
+        println("1. Precio de Litro de Combustible",
+                "2. Combustible Reabastecido por Carga",
+                "-----------------------------------------------"); endl;
+    
         println("Parametros del Vehiculo:");
-        print_param_vehiculo(&contexto->vehiculo); endl;
-        println("Seleccione el parametro que desea ajustar",
-                "3. Peso del Vehiculo",
+        print_param_vehiculo(&cntx->vehiculo);                   endl;
+        println("3. Peso del Vehiculo",
                 "4. Capacidad de Carga",
                 "5. Capacidad de Combustible",
                 "6. Rendimiento",
                 "7. Velocidad con Carga Maxima",
                 "8. Velocidad sin Carga Alguna",
-                "9. Salir");
+                "-----------------------------------------------"); endl;
+            
+        println("9. Regresar");
         edlib_set_prompt(PROMPT_OPC);
-        int opc = validar_int_en_rango(1, 5);
+        int opc = validar_int_en_rango(0, 9);
 
         edlib_set_prompt(PROMPT_DATO);
         switch(opc) {
         case 0:
-            print_menu_de_ayuda();
+            print_ayuda_parmetros();
             break;
         case 1:
             edlib_set_msj_error("El precio de combustible debe ser mayor a 0");
-            contexto->config.costo_combustible=validar_float_min(0.01f);
+            cntx->config.costo_combustible=validar_float_min(0.01f);
             break;
         case 2:
-            edlib_set_msj_error("La razon de reabastecimiento debe estar entre 0.1 y 1");
-            contexto->config.reabastecimiento=validar_float_en_rango(0.1f, 1.0f);
+            edlib_set_msj_error("El combustible reabastecido debe estar entre 50L y\n"
+                                "la capacidad de combustible del vehiculo");
+            cntx->config.reabastecimiento=validar_float_en_rango(
+                50.0f, cntx->vehiculo.combustible_max);
+            cntx->config.reabastecimiento/=cntx->vehiculo.combustible_max;
             break;
         case 3:
             edlib_set_msj_error("El peso debe estar entre 1 y 12 toneladas");
-            contexto->vehiculo.peso = validar_float_en_rango(1.0f, 12.0f);
+            cntx->vehiculo.peso = validar_float_en_rango(1.0f, 12.0f);
             break;
         case 4:
             edlib_set_msj_error("La capacidad de carga debe estar entre 5 y 100 toneladas");
-            contexto->vehiculo.carga_max = validar_float_en_rango(0.0f, 100.0f);
+            cntx ->vehiculo.carga_max = validar_float_en_rango(0.0f, 100.0f);
             break;
         case 5:
             edlib_set_msj_error("La capacidad de combustible debe estar entre 50 y 2000 litros");
-            contexto->vehiculo.combustible_max = validar_float_en_rango(50.0f, 2000.0f);
+            cntx->vehiculo.combustible_max = validar_float_en_rango(50.0f, 2000.0f);
             break;
         case 6:
             edlib_set_msj_error("El redimineto del vehiculo debe estar entre 0.5 y 6 Km/L");
-            contexto->vehiculo.rendimiento = validar_float_en_rango(0.5f, 6.0f);
+            cntx->vehiculo.rendimiento = validar_float_en_rango(0.5f, 6.0f);
             break;
         case 7:
             edlib_set_msj_error("La velocidad con carga maxima debe ser mayor a 20 Km/h ");
-            contexto->vehiculo.velocidad_min = validar_float_min(20.0f);
+            cntx->vehiculo.velocidad_min = validar_float_min(20.0f);
             break;
         case 8:
             edlib_set_msj_error("La velocidad sin carga alguna debe ser mayor\n"
                 "o igual que la velocidad con carga maxima");
-            contexto->vehiculo.velocidad_max = validar_float_min(contexto->vehiculo.velocidad_min);
+            cntx->vehiculo.velocidad_max = validar_float_min(cntx->vehiculo.velocidad_min);
             break;
         case 9:
             return;
@@ -332,6 +390,7 @@ void seleccionar_prioridad(Grafo_D* mapa) {
     }
 }
 
+
 #define LIMITE_PESO 80.0f
 ParamViaje leer_parametros_viaje(const ParamVehiculo* vehiculo) {
     ParamViaje viaje;
@@ -361,6 +420,7 @@ ParamViaje leer_parametros_viaje(const ParamVehiculo* vehiculo) {
     viaje.presupuesto = validar_float_min(0);
     return viaje;
 }
+
 
 #define L_BUFFER_ERROR 128
 Lista_D* leer_ciudades_destino(const Grafo_D* mapa) {
@@ -422,7 +482,7 @@ Lista_D* leer_ciudades_destino(const Grafo_D* mapa) {
 
 /*  Asigna todos los pesos de entrega de los vertices a 0*/
 void limpiar_pesos_de_entrega(Grafo_D* mapa) {
-    const Vect_V* vect = grafo_d_get_vertices(mapa);
+    Vect_V* vect = grafo_d_get_vertices(mapa);
     for(int i=0; i<vect->tamano; ++i) {
         vect->vertices[i]->peso_entrega=0;
     }
@@ -444,8 +504,9 @@ Viaje viaje_secuencial(const Grafo_D* mapa) {
     endl;
 
     println("Iniciando Viaje Generico:",
-            "El orden en el que se introduzcan las ciudades determinara",
+            "El  orden  en  el  que se  introduzcan las ciudades determinara",
             "el orden en el que se visitarn las ciudades para hacer entregas");
+    endl;
     mapa->contexto->viaje = leer_parametros_viaje(&mapa->contexto->vehiculo);
     Viaje viaje = {*(mapa->contexto), NULL};
 
@@ -464,7 +525,7 @@ Viaje viaje_secuencial(const Grafo_D* mapa) {
             if(mapa->contexto->viaje.combustible > consumo) {
                 mapa->contexto->viaje.combustible-=consumo;
             } else {
-                mapa->contexto->viaje.combustible=
+                mapa->contexto->viaje.combustible+=
                     mapa->contexto->config.reabastecimiento*
                     mapa->contexto->vehiculo.combustible_max;
             }
@@ -472,11 +533,11 @@ Viaje viaje_secuencial(const Grafo_D* mapa) {
             if(mapa->contexto->viaje.presupuesto >= peaje) {
                 mapa->contexto->viaje.presupuesto-=peaje;
             } else {
-                segmento = camino_d_frecortar(segmento, i);
+                segmento = camino_d_rctr(segmento, i);
                 break;
             }
         }
-        camino = camino_d_fconcatenar(camino, segmento);
+        camino = camino_d_concat(camino, segmento);
         if(camino_d_get_fin(camino)==lista_d_get_inicio(ciudades)) {
             //Actualizar carga cuando llegamos al destino
             mapa->contexto->viaje.carga-=camino_d_get_fin(camino)->peso_entrega;
@@ -501,7 +562,7 @@ Viaje viaje_generico(const Grafo_D* mapa) {
 
     println("Iniciando Viaje Generico",
             "Las ciudades que se ingresen a continuacion se visitaran en",
-            "un el orden mas conveniente para realizar las entregas");
+            "el  orden  mas  conveniente  para  realizar  las  entregas");
     mapa->contexto->viaje = leer_parametros_viaje(&mapa->contexto->vehiculo);
     Viaje viaje = {*(mapa->contexto), NULL};
 
@@ -520,7 +581,7 @@ Viaje viaje_generico(const Grafo_D* mapa) {
             if(mapa->contexto->viaje.combustible > consumo) {
                 mapa->contexto->viaje.combustible-=consumo;
             } else {
-                mapa->contexto->viaje.combustible=
+                mapa->contexto->viaje.combustible+=
                     mapa->contexto->config.reabastecimiento*
                     mapa->contexto->vehiculo.combustible_max;
             }
@@ -528,11 +589,11 @@ Viaje viaje_generico(const Grafo_D* mapa) {
             if(mapa->contexto->viaje.presupuesto >= peaje) {
                 mapa->contexto->viaje.presupuesto-=peaje;
             } else {
-                segmento = camino_d_frecortar(segmento, i);
+                segmento = camino_d_rctr(segmento, i);
                 break;
             }
         }
-        camino = camino_d_fconcatenar(camino, segmento);
+        camino = camino_d_concat(camino, segmento);
         if(camino_d_get_fin(camino)==lista_d_get_inicio(ciudades)) {
             //Actualizar carga cuando llegamos al destino
             mapa->contexto->viaje.carga-=camino_d_get_fin(camino)->peso_entrega;
@@ -551,16 +612,10 @@ void print_viaje(Viaje viaje) {
         float distancia;
         float tiempo;
         float combustible;
+        float combustible_transito;
         float peaje;
         float gastos;
     } total={0};
-
-    struct {
-        float tiempo;
-        float combustible;
-        float combustible_tanque;
-        float combustible_transito;
-    } tmp={0};
 
     clear();
     println("------------Resumen del Viaje------------"); endl;
@@ -573,53 +628,55 @@ void print_viaje(Viaje viaje) {
     for(int i=0; i<viaje.camino->saltos; ++i) {
         Carretera* carretera = viaje.camino->ars[i];
         Ciudad* ciudad = viaje.camino->vts[i+1];
-        printf("Tomar %s hacia %s\n", carretera->nombre, ciudad->nombre);
+        struct {
+            float velocidad;
+            float combustible;
+            float tiempo;
+        } tmp;
 
-        printf("Distancia Recorrida: %.1f Km\n", carretera->longitud);
-        total.distancia += carretera->longitud;
-
-        tmp.tiempo = carretera->longitud/
-            calcular_vel_max_actual(carretera, &viaje.contexto);
-        printf("Tiempo Estimado: %.1f Hrs\n", tmp.tiempo);
-        total.tiempo += tmp.tiempo;
-
-        tmp.combustible = carretera->longitud/
-            calcular_rendimiento_actual(&viaje.contexto);
-        printf("Combustible Consumido: %.1f L\n", tmp.combustible);
-        total.combustible += tmp.combustible;
+        tmp.velocidad = calcular_velocidad_actual(carretera, &viaje.contexto);
+        tmp.tiempo = carretera->longitud/tmp.velocidad;
+        tmp.combustible = carretera->longitud/calcular_rendimiento_actual(&viaje.contexto);
         
-        if(carretera->cuota!=0.0f) {
-            printf("Peaje: %.2f Mx\n", carretera->cuota);
-            total.peaje += carretera->cuota;
-        }
+        //Actualizar Totales
+        total.distancia += carretera->longitud;
+        total.tiempo += tmp.tiempo;
+        total.peaje += carretera->cuota;
+        total.combustible+=tmp.combustible;
+        if(total.combustible >= viaje.contexto.viaje.combustible)
+            total.combustible_transito+=tmp.combustible;
 
+        //Actualizar Contexto
+        viaje.contexto.viaje.carga -= ciudad->peso_entrega;
+
+        printf("Tomar %s hacia %s\n", carretera->nombre, ciudad->nombre);
+        printf("Distancia Recorrida:                %-6.1f Km\n", carretera->longitud);
+        printf("Velocida Media:                     %-6.1f Km\\h\n", tmp.velocidad);
+        printf("Tiempo Estimado:                    %-6.1f Hrs\n", tmp.tiempo);
+        printf("Combustible Consumido:              %-6.1f L\n", tmp.combustible);
+        if(carretera->cuota!=0.0f) {    
+            printf("Peaje:                              %-6.2f Mx\n", carretera->cuota);
+        }
         if(ciudad->peso_entrega!=0.0f) {
             printf("Se realizo una entrega en %s\n", ciudad->nombre);
-            printf("Peso de entrega: %.1f Ton\n", ciudad->peso_entrega);
+            printf("Peso de entrega:                    %-6.1f Ton\n", ciudad->peso_entrega);   
         }
         endl;
     }
     endl;
 
     println("-------------Desglose Final--------------");
-    printf("Distancia Total Recorrida: %0.1f Km\n", total.distancia);
-    printf("Tiempo Total Estimado: %0.1f Hrs\n", total.tiempo);
-    printf("Combustible Total Consumido: %0.1f L\n", total.combustible);
-    tmp.combustible_transito = total.combustible-viaje.contexto.viaje.combustible;
-    if(tmp.combustible_transito >= 0.0f) {
-        tmp.combustible_tanque = viaje.contexto.viaje.combustible;
-    } else {
-        tmp.combustible_tanque = total.combustible;
-        tmp.combustible_transito = 0.0f;
-    }
-    printf("  *Inicialmente en el Tanque: %0.1f L\n", tmp.combustible_tanque);
-    printf("  *Comprada en Transito: %0.1f L\n", tmp.combustible_transito);
-    printf("Total de Pejes Pagados: %0.1f Mx\n", total.peaje);
+    printf("Distancia Total Recorrida:          %-6.1f Km\n", total.distancia);
+    printf("Tiempo Total Estimado:              %-6.1f Hrs\n", total.tiempo);
+    printf("Combustible Total Consumido:        %-6.1f L\n", total.combustible);
+    printf("  *Inicialmente en el Tanque:       %-6.1f L\n", total.combustible-total.combustible_transito);
+    printf("  *Comprada en Transito:            %-6.1f L\n", total.combustible_transito);
+    printf("Total de Pejes Pagados:             %-6.1f Mx\n", total.peaje);
     endl;
 
     total.gastos = total.peaje+total.combustible*
         viaje.contexto.config.costo_combustible;
-    printf("Considerando el precio decombustible como %.2f Mx\n",
+    printf("Considerando el precio de combustible como %.2f Mx\n",
             viaje.contexto.config.costo_combustible);
     printf("La cantida de gastos fue: %.2f\n", total.gastos);
     flush();
