@@ -15,14 +15,18 @@ int main(void) {
         clear();
         println("Sistema de Gestion de Transporte Aceros ACME",
                 "--------------------------------------------",
-                "1. Mostrar Ciudades Disponibles",
+                "0. Desplegar Menu de Ayuda",
+                "1. Mostrar Destinos Disponibles",
                 "2. Configurar Parametros",
                 "3. Seleccionar Prioridad",
-                "4. Generar Viaje Secuencial",
-                "5. Generar Viaje Generico",
+                "4. Generar Ruta Secuencial",
+                "5. Generar Ruta Generico",
                 "6. Salir");
         edlib_set_prompt(PROMPT_OPC);
-        switch(validar_int_en_rango(1,6)) {
+        switch(validar_int_en_rango(0,6)) {
+        case 0:
+            print_ayuda_general();
+            break;
         case 1:
             mostrar_ciudades(mapa);
             break;

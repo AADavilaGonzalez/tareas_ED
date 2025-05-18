@@ -140,37 +140,94 @@ Grafo_D* incializar_mapa(void) {
     Vertice* tampico = grafo_d_insertar_vertice(mapa, (Ciudad){"Tampico"});
 
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 126.0f, 0, 80.0f}, piedras_negras, sabinas);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57 Cuota", 123.0f, 100.0f, 110.0f}, piedras_negras, sabinas);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2", 176.0f, 0, 80.0f}, piedras_negras, nuevo_laredo);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2 Cuota", 176.0f, 75.0f, 110.0f}, piedras_negras, nuevo_laredo);
+    
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 115.0f, 0, 80.0f}, sabinas, monclova);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57 Cuota", 115.0f, 75.0f, 110.0f}, sabinas, monclova);
+    
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2", 247.0f, 0, 80.0f}, nuevo_laredo, reynosa);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2 Cuota", 247.0f, 75.0f, 110.0f}, nuevo_laredo, reynosa);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 194.0f, 0, 80.0f}, monclova, saltillo);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57 Cuota", 194.0f, 75.0f, 110.0f}, monclova, saltillo);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-53", 196.0f, 0, 80.0f}, monclova, monterrey);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-53 Cuota", 196.0f, 75.0f, 110.0f}, monclova, monterrey);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 220.0f, 0, 80.0f}, nuevo_laredo, monterrey);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85 Cuota", 220.0f, 375.0f, 110.0f}, nuevo_laredo, monterrey);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40", 110.0f, 0, 80.0f}, reynosa, china);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40 Cuota", 110.0f, 200.0f, 110.0f}, reynosa, china);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2", 91.4f, 0, 80.0f}, reynosa, matamoros);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-2 Cuota", 91.4f, 75.0f, 110.0f}, reynosa, matamoros);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40", 85.7f, 0, 80.0f}, saltillo, monterrey);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40 Cuota", 85.7f, 85.0f, 110.0f}, saltillo, monterrey);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40", 122.0f, 0, 80.0f}, monterrey, china);
+    grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-40 Cuota", 122.0f, 150.0f, 110.0f}, monterrey, china);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 121.0f, 0, 80.0f}, saltillo, san_roberto);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57 Cuota", 121.0f, 75.0f, 110.0f}, saltillo, san_roberto);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 80.8f, 0, 80.0f}, monterrey, montemorelos);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85 Cuota", 80.8f, 75.0f, 110.0f}, monterrey, montemorelos);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-35", 94.6f, 0, 80.0f}, china, montemorelos);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-35 Cuota", 94.6f, 75.0f, 110.0f}, china, montemorelos);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-97", 151.0f, 0, 80.0f}, reynosa, san_fernando);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-97 Cuota", 151.0f, 75.0f, 110.0f}, reynosa, san_fernando);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101", 140.0f, 0, 80.0f}, matamoros, san_fernando);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101 Cuota", 140.0f, 75.0f, 110.0f}, matamoros, san_fernando);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 51.4f, 0, 80.0f}, montemorelos, linares);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85 Cuota", 51.4f, 75.0f, 110.0f}, montemorelos, linares);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58", 46.7f, 0, 80.0f}, san_roberto, galeana);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58 Cuota", 46.7f, 75.0f, 110.0f}, san_roberto, galeana);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58", 73.1f, 0, 80.0f}, galeana, linares);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58 Cuota", 73.1f, 75.0f, 110.0f}, galeana, linares);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58", 104.0f, 0, 80.0f}, san_roberto, linares);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-58 Cuota", 104.0f, 75.0f, 110.0f}, san_roberto, linares);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101", 179.0f, 0, 80.0f}, san_fernando, cd_victoria);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101 Cuota", 179.0f, 75.0f, 110.0f}, san_fernando, cd_victoria);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 134.0f, 0, 80.0f}, san_roberto, matehuala);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57 Cuota", 134.0f, 75.0f, 110.0f}, san_roberto, matehuala);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-29", 50.5f, 0, 80.0f}, matehuala, dr_arrollo);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-29 Cuota", 50.5f, 75.0f, 110.0f}, matehuala, dr_arrollo);
+    
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85", 155.0f, 0, 80.0f}, linares, cd_victoria);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-85 Cuota", 155.0f, 75.0f, 110.0f}, linares, cd_victoria);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57", 192.0f, 0, 80.0f}, matehuala, san_luis);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-57 Cuota", 192.0f, 75.0f, 110.0f}, matehuala, san_luis);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101", 338.0f, 0, 80.0f}, san_luis, cd_victoria);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-101 Cuota", 338.0f, 75.0f, 110.0f}, san_luis, cd_victoria);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-70/75", 111.0f, 0, 80.0f}, cd_victoria, soto_marina);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-70/75 Cuota", 111.0f, 75.0f, 110.0f}, cd_victoria, soto_marina);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-83", 237.0f, 0, 80.0f}, cd_victoria, tampico);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-83 Cuota", 237.0f, 75.0f, 110.0f}, cd_victoria, tampico);
+
     grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-180/80", 275.0f, 0, 80.0f}, soto_marina, tampico);
+    //grafo_d_insertar_arcnj(mapa, (Carretera){"Mx-180/80 Cuota", 275.0f, 75.0f, 110.0f}, soto_marina, tampico);
 
     #define N_VERTICES_INICIALES 20
-    #define N_ARISTAS_INICIALES 58
+    #define N_ARISTAS_INICIALES 68
     if(mapa->orden!=N_VERTICES_INICIALES || mapa->tamano!=N_ARISTAS_INICIALES) {
         grafo_d_destruir(mapa);
         return NULL;
@@ -196,7 +253,7 @@ Grafo_D* incializar_mapa(void) {
 
     mapa->contexto=&contexto;
     grafo_d_set_cmp_vt(mapa, comparar_ciudad_por_nombre);
-    grafo_d_set_calc_peso(mapa, calcular_peso_por_distancia);
+    grafo_d_set_calc_peso(mapa, calcular_peso_por_costo);
 
     return mapa;
 }
@@ -431,11 +488,11 @@ Lista_D* leer_ciudades_destino(const Grafo_D* mapa) {
     Ciudad buffer = {"",0};
     char error[L_BUFFER_ERROR];
 
-    println("Introduzca el nombre de la ciudad donde iniciara el viaje");
+    println("Introduzca el nombre del lugar donde iniciara el viaje");
     edlib_set_prompt(PROMPT_DATO);
     leer_string(buffer.nombre, L_NOMBRE);
     while(!(ciudad = grafo_d_buscar_vertice(mapa, buffer))) {
-        println("No se encontro ninguna ciudad con ese nombre");
+        println("No se encontro ningun destino con ese nombre");
         leer_string(buffer.nombre, L_NOMBRE);
     }
     ciudad->peso_entrega=0;
@@ -446,10 +503,10 @@ Lista_D* leer_ciudades_destino(const Grafo_D* mapa) {
     while(!usuario_esta_seguro) {
         carga_restante = mapa->contexto->viaje.carga;
         endl;
-        println("Introduzca los nombres de las ciudades a visitar",
+        println("Introduzca los nombres de los destinos a visitar",
                 "Introduzca una linea vacia para finalizar la captura");
         endl;
-        edlib_set_prompt("Ciudad"PROMPT_DATO);
+        edlib_set_prompt("Destino"PROMPT_DATO);
         while(leer_string(buffer.nombre, L_NOMBRE)) {
             ciudad = grafo_d_buscar_vertice(mapa,buffer);
             if(ciudad) {
@@ -465,7 +522,7 @@ Lista_D* leer_ciudades_destino(const Grafo_D* mapa) {
             } else
                 println("No se encontro ninguna ciudad con ese nombre");
             endl;
-            edlib_set_prompt("Ciudad"PROMPT_DATO);
+            edlib_set_prompt("Destino"PROMPT_DATO);
         }
         if(en_rango(carga_restante, 0, 0.5))
             usuario_esta_seguro = true;
@@ -480,6 +537,7 @@ Lista_D* leer_ciudades_destino(const Grafo_D* mapa) {
     return ciudades;
 }
 
+
 /*  Asigna todos los pesos de entrega de los vertices a 0*/
 void limpiar_pesos_de_entrega(Grafo_D* mapa) {
     Vect_V* vect = grafo_d_get_vertices(mapa);
@@ -489,10 +547,12 @@ void limpiar_pesos_de_entrega(Grafo_D* mapa) {
     vect_v_destruir(vect);
 }
 
+
 typedef struct {
     Contexto contexto;
     Camino_D* camino;
 } Viaje;
+
 
 Viaje viaje_secuencial(const Grafo_D* mapa) {
     clear();
@@ -504,7 +564,7 @@ Viaje viaje_secuencial(const Grafo_D* mapa) {
     endl;
 
     println("Iniciando Viaje Generico:",
-            "El  orden  en  el  que se  introduzcan las ciudades determinara",
+            "El  orden  en  el  que se  introduzcan los destinos determinara",
             "el orden en el que se visitarn las ciudades para hacer entregas");
     endl;
     mapa->contexto->viaje = leer_parametros_viaje(&mapa->contexto->vehiculo);
@@ -551,6 +611,7 @@ Viaje viaje_secuencial(const Grafo_D* mapa) {
     return viaje;
 }
 
+
 Viaje viaje_generico(const Grafo_D* mapa) {
     clear();
     println("Parametros del Vehiculo Actual:");
@@ -561,7 +622,7 @@ Viaje viaje_generico(const Grafo_D* mapa) {
     endl;
 
     println("Iniciando Viaje Generico",
-            "Las ciudades que se ingresen a continuacion se visitaran en",
+            "Los destinos que se ingresen a continuacion se visitaran en",
             "el  orden  mas  conveniente  para  realizar  las  entregas");
     mapa->contexto->viaje = leer_parametros_viaje(&mapa->contexto->vehiculo);
     Viaje viaje = {*(mapa->contexto), NULL};
@@ -606,6 +667,7 @@ Viaje viaje_generico(const Grafo_D* mapa) {
     lista_d_destruir(ciudades);
     return viaje;
 }
+
 
 void print_viaje(Viaje viaje) {    
     struct {
@@ -681,4 +743,45 @@ void print_viaje(Viaje viaje) {
     printf("La cantida de gastos fue: %.2f\n", total.gastos);
     flush();
     return;
+}
+
+
+void print_ayuda_general(void) {
+    clear();
+    println("Bienvenido al sistema de Gestion de Transporte Aceros ACME",
+            "El  objetivo del sistema es trazar rutas entre los distintos destinos"  ,
+            "de entrega de la empreza de materiales pesados Aceros ACME"             ,
+            ""                                                                       ,
+            "Para empezar a usar el sistema, exploremos las distintas opciones que"  ,
+            "el programa permite realizar para facilitar las planeaciones de rutas"  ,
+            ""                                                                       ,
+            "Mostrar Destinos Disponibles"                                           ,
+            "Lista  los  nombres  de  todos los destinos  disponibles para realizar" ,
+            "entregas. Estos nombres son importantes ya que son los identificadores" ,
+            "usados  para  indicarle al sistema como realizar los viajes requeridos" ,
+            ""                                                                       ,
+            "Configurar Parametros"                                                  ,
+            "Abre un submenu con los parametros o opciones que el usuario es capaz"  ,
+            "de  modificar  para  que  el  sistema  pueda realizar los calculos de"  ,
+            "optimizacion de rutas de forma consistente con la realidad."            ,
+            ""                                                                       ,
+            "Seleccionar Prioridad"                                                  ,
+            "Abre un submenu donde se puede decidir que aspecto del viaje optimizar" ,
+            "la  opcion elegida en este menu cambiara los resultados del proceso de" ,
+            "enrutamiento."                                                          ,
+            ""                                                                       ,
+            "Generar Ruta Secuencial"                                                ,
+            "Empieza el proceso de enrutamiento desplegando un dialogo en donde se"  ,
+            "especificaran  los destinos a visitar y las entregas a realizar en el"  ,
+            "orden  en  que  deben ser realizadas. Es util para organizar entregas"  ,
+            "sensibles al tiempo."                                                   ,
+            ""                                                                       ,
+            "Generar Ruta Generica"                                                  ,
+            "Empieza el proceso de enrutamiento desplegando un dialogo en donde se"  ,
+            "especificaran  los  destinos  a visitar y las entregas a realizar. El"  ,
+            "orden en el que se introduzca los destinos (a excepcion del primero)"   ,
+            "no tiene ninguna revancia, ya que el sistema se encargara de encontrar" ,
+            "la ruta mas optima que una todos estos destinos"
+    );
+    flush();
 }
