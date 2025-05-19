@@ -236,11 +236,11 @@ Grafo_D* incializar_mapa(void) {
     #undef N_ARISTAS_INICIALES
 
     static Contexto contexto = {
-        (ParamConfig) {
+        .config = {
             .costo_combustible=25.0f,
             .reabastecimiento=0.5f,
         },
-        (ParamVehiculo){
+        .vehiculo = {
             .peso = 4.5f,
             .carga_max = 50.0f,
             .combustible_max = 1000.0f,
@@ -248,7 +248,7 @@ Grafo_D* incializar_mapa(void) {
             .velocidad_min = 80.0f,
             .velocidad_max = 120.0f,
         },
-        (ParamViaje){0}
+        .viaje = {0}
     };
 
     mapa->contexto=&contexto;
