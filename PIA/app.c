@@ -680,7 +680,6 @@ Viaje viaje_generico(const Grafo_D* mapa) {
         if(camino_d_get_fin(camino)==objetivo) {
             //Actualizar carga cuando llegamos al destino
             mapa->contexto->viaje.carga-=camino_d_get_fin(camino)->peso_entrega;
-            printf("Objetivo a eliminar: %p\n", objetivo);
             lista_d_eliminar_elem(ciudades, objetivo);
         }
     }
