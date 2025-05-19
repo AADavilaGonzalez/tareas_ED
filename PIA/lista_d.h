@@ -130,6 +130,30 @@ static void lista_d_eliminar_fin(Lista_D* lista) {
     --(lista->tamano);
 }
 
+static void lista_d_eliminar_elem(Lista_D* lista, _elem ref) {
+    _Nodo* tmp; _Nodo* nodo = lista->ini;
+    while(nodo!=NULL) {
+        if(lista->cmp_elem((const _elem*)&ref, (const _elem*)&nodo->elem)) {
+            if(nodo!=lista->ini)
+                nodo->prev->sig=nodo->sig;
+            else {
+                lista->ini=nodo->sig;
+            }
+            if(nodo!=lista->fin)
+                nodo->sig->prev=nodo->prev;
+            else {
+                lista->fin=nodo->prev;
+            }
+            tmp=nodo;
+            nodo=nodo->sig;
+            free(tmp);
+            --(lista->tamano);
+        } else {
+            nodo=nodo->sig;
+        }
+    }
+}
+
 static inline _elem lista_d_pop_inicio(Lista_D* lista) {
     _elem elem = lista_d_get_inicio(lista);
     lista_d_eliminar_inicio(lista);
@@ -147,9 +171,17 @@ static bool lista_d_contiene_elem(Lista_D* lista, _elem ref) {
     while(nodo!=NULL) {
         if(lista->cmp_elem((const _elem*)&ref, (const _elem*)&nodo->elem))
             return true;
-        nodo = nodo->sig;
+        nodo=nodo->sig;
     }
     return false;
+}
+
+static void lista_d_copiar_a_arreglo(Lista_D* lista, _elem* arr) {
+    _Nodo* nodo = lista->ini;
+    for(int i=0; i < lista->tamano; ++i) {
+        arr[i] = nodo->elem;
+        nodo=nodo->sig;
+    }
 }
 
 static void lista_d_print(Lista_D* lista, void (*print_elem)(const _elem*)) {

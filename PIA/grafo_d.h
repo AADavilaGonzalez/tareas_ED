@@ -1152,9 +1152,105 @@ static Camino_D* grafo_d_dijkstra_unico(const Grafo_D* grafo, const Vertice* ini
             visitados=nodo_ref;
         }
     }
-    _liberar_lista_c(no_visitados);
     Camino_D* camino = _dijkstra_constuir_camino(nodo_ref);
     _liberar_lista_c(visitados);
+    _liberar_lista_c(no_visitados);
+    return camino;
+}
+
+
+/*  !!!FUNCION DE USO INTERNO!!!                                                                    */
+static bool _vect_v_contiene_vt(Vect_V* vector, const Vertice* vt) {
+    for(int i=0; i<vector->tamano; ++i)
+        if(vt==vector->vertices[i]) return true;
+    return false;
+}
+
+
+static Camino_D* grafo_d_dijkstra_al_mas_cercano(const Grafo_D* grafo, const Vertice* ini,
+    Vect_V* objetivos)
+{
+    struct _nodo_v* vptr; struct _nodo_a* aptr; struct _nodo_c* cptr;
+    struct _nodo_c* visitados=NULL;
+    struct _nodo_c* no_visitados=NULL;
+    vptr=grafo->lista_ady;
+    //Inicializamos listas de visitados y no visitados
+    while(vptr!=NULL) {
+        cptr=(struct _nodo_c*)malloc(sizeof(struct _nodo_c));
+        if(!cptr) {
+            _liberar_lista_c(visitados);
+            _liberar_lista_c(no_visitados);
+            return NULL;
+        }
+        if(ini!=&vptr->vt) {
+            cptr->sig=no_visitados;
+            cptr->vt_actual=vptr;
+            cptr->ar_puente=NULL;
+            cptr->nd_padre=NULL;
+            cptr->dist_orig=PESO_NO_ARISTA;
+            no_visitados=cptr;
+        }
+        else {
+            cptr->sig=NULL;
+            cptr->vt_actual=vptr;
+            cptr->ar_puente=NULL;
+            cptr->nd_padre=NULL;
+            cptr->dist_orig=0;
+            visitados=cptr;
+        }
+        vptr=vptr->sig;
+    }
+
+    /*----------------Parte Iterativa----------------
+        Ejecutamos Dijkstra hasta encontrar el camino al
+        primer vertice que este en objetivos*/
+    struct _nodo_c* nodo_ref = visitados;
+    while(!_vect_v_contiene_vt(objetivos, &nodo_ref->vt_actual->vt)) {
+
+        //Para cada arista de salida del vertice
+        aptr = nodo_ref->vt_actual->lista_ady;
+        while(aptr!=NULL) {
+            struct _nodo_c* nodo_fin = _get_nodo_c_vertice(no_visitados, aptr->fin);
+            if(nodo_fin!=NULL) {
+                peso_t dp=nodo_ref->dist_orig+grafo->calc_peso(grafo,&(aptr->ar));
+                if(dp < nodo_fin->dist_orig) {
+                    nodo_fin->dist_orig = dp;
+                    nodo_fin->nd_padre  = nodo_ref;
+                    nodo_fin->ar_puente = aptr;
+                }
+            }
+            aptr=aptr->sig;
+        }
+
+        //Acualizar nodo_ref
+        nodo_ref = _get_nodo_c_minimo(no_visitados);
+
+        /*Si no existen vertices alcanzables regresamos
+        un camino nulo*/
+        if(nodo_ref==NULL) {
+            _liberar_lista_c(visitados);
+            _liberar_lista_c(no_visitados);
+            return camino_d_crear_nulo();
+        };
+
+        //Pasar nuevo nodo_ref de no_visitados a visitados
+        if(nodo_ref==no_visitados) {
+            no_visitados=no_visitados->sig;
+            nodo_ref->sig=visitados;
+            visitados=nodo_ref;
+        }
+        else {
+            cptr=no_visitados;
+            while(cptr->sig!=nodo_ref)
+                cptr=cptr->sig;
+            cptr->sig=nodo_ref->sig;
+            nodo_ref->sig=visitados;
+            visitados=nodo_ref;
+        }
+    }
+    Camino_D* camino = _dijkstra_constuir_camino(nodo_ref);
+    _liberar_lista_c(visitados);
+    _liberar_lista_c(no_visitados);
     return camino;
 }
 
@@ -1168,18 +1264,11 @@ typedef struct vect_c{
 static void vect_c_destruir(Vect_C* vector) {
     for(int i=0; i<vector->tamano; ++i) {
         if(vector->caminos[i]!=NULL)
-            free(vector->caminos[i]);
+            camino_d_destruir(vector->caminos[i]);
     }
     free(vector);
 } 
 
-
-/*  !!!FUNCION DE USO INTERNO!!!                                                                    */
-static bool _vect_v_contiene_vt(Vect_V* vector, const Vertice* vt) {
-    for(int i=0; i<vector->tamano; ++i)
-        if(vt==vector->vertices[i]) return true;
-    return false;
-}
 
 /*  !!!FUNCION DE USO INTERNO!!!                                                                    */
 static bool _vect_c_esta_lleno(Vect_C* vector) {
@@ -1189,14 +1278,14 @@ static bool _vect_c_esta_lleno(Vect_C* vector) {
 }
 
 
-/*  Encuentra los caminos mas cortos entre ini y cada vertice elemento del vector finales. El orden
-    de los caminos entre ini y finales[i] esta dado en orden acendente de menor longitud a mayor
+/*  Encuentra los caminos mas cortos entre ini y cada vertice elemento del vector objetivos. El orden
+    de los caminos entre ini y objetivos[i] esta dado en orden acendente de menor longitud a mayor
     longiud. La estructura Vect_C regresada por esta funcion debe ser liberada mediante un llamado
     a vect_c_destruir()                                                                             */
-static Vect_C* grafo_d_dijkstra_multiple(const Grafo_D* grafo, const Vertice* ini, Vect_V* finales) {
-    Vect_C* vector = (Vect_C*)malloc_fam(Vect_C, Camino_D*, finales->tamano);
+static Vect_C* grafo_d_dijkstra_multiple(const Grafo_D* grafo, const Vertice* ini, Vect_V* objetivos) {
+    Vect_C* vector = (Vect_C*)malloc_fam(Vect_C, Camino_D*, objetivos->tamano);
     if(!vector) return NULL;
-    vector->tamano = finales->tamano;
+    vector->tamano = objetivos->tamano;
     memset(vector->caminos, 0, sizeof(Camino_D*)*vector->tamano);
 
     struct _nodo_v* vptr; struct _nodo_a* aptr; struct _nodo_c* cptr;
@@ -1236,10 +1325,11 @@ static Vect_C* grafo_d_dijkstra_multiple(const Grafo_D* grafo, const Vertice* in
         para todos los vertices en el vector fin*/
     size_t i=0;
     struct _nodo_c* nodo_ref = visitados;
-    while(true) {
-        /*Si el vertice que se encontro esta en la lista de finales
+    while(!_vect_c_esta_lleno(vector)) {
+
+        /*Si el vertice que se encontro esta en la lista de objetivos
         consturimos su camino y lo agremos al vector*/
-        if(_vect_v_contiene_vt(finales, &nodo_ref->vt_actual->vt)) {
+        if(_vect_v_contiene_vt(objetivos, &nodo_ref->vt_actual->vt)) {
             Camino_D* camino = _dijkstra_constuir_camino(nodo_ref);
             if(!camino) {
                 vect_c_destruir(vector);
@@ -1249,12 +1339,6 @@ static Vect_C* grafo_d_dijkstra_multiple(const Grafo_D* grafo, const Vertice* in
             }
             vector->caminos[i]=camino;
             ++i;
-        }
-        /*Si ya encontramos todos los caminos requeridos, salimos*/
-        if(_vect_c_esta_lleno(vector)) {
-            _liberar_lista_c(visitados);
-            _liberar_lista_c(no_visitados);
-            return vector;
         }
 
         //Para cada arista de salida del vertice
@@ -1305,6 +1389,9 @@ static Vect_C* grafo_d_dijkstra_multiple(const Grafo_D* grafo, const Vertice* in
             visitados=nodo_ref;
         }
     }
+    _liberar_lista_c(visitados);
+    _liberar_lista_c(no_visitados);
+    return vector;
 }
 
 /*-------------------------------Operaciones de Ordenacion---------------------------------*/

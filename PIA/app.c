@@ -70,7 +70,7 @@ static inline float dlogerp(float val, float R) {
 /*  Define el rendimineto actual del vehiculo como una interpolacion entre el rendimineto base(m)
     y una fraccion del rendimiento base (RENDIMINTO_MIN*m) con respecto a una relacion logaritmica
     entre la carga actual y el peso de carga maximo del vehiculo establecido.                       */
-#define RENDIMIENTO_MIN 0.2f
+#define RENDIMIENTO_MIN 0.6f
 static inline float calcular_rendimiento_actual(const Contexto* contexto) {
     return  dlogerp(contexto->viaje.carga, contexto->vehiculo.carga_max)*
             (contexto->vehiculo.rendimiento-RENDIMIENTO_MIN*contexto->vehiculo.rendimiento)+
@@ -133,7 +133,7 @@ Grafo_D* incializar_mapa(void) {
     Vertice* galeana = grafo_d_insertar_vertice(mapa, (Ciudad){"Galeana"});
     Vertice* linares = grafo_d_insertar_vertice(mapa, (Ciudad){"Linares"});
     Vertice* matehuala = grafo_d_insertar_vertice(mapa, (Ciudad){"Matehuala"});
-    Vertice* dr_arrollo = grafo_d_insertar_vertice(mapa, (Ciudad){"Dr Arrollo"});
+    Vertice* dr_arrollo = grafo_d_insertar_vertice(mapa, (Ciudad){"Dr Arroyo"});
     Vertice* cd_victoria = grafo_d_insertar_vertice(mapa, (Ciudad){"Ciudad Victoria"});
     Vertice* soto_marina = grafo_d_insertar_vertice(mapa, (Ciudad){"Soto de la Marina"});
     Vertice* san_luis = grafo_d_insertar_vertice(mapa, (Ciudad){"San Luis Potosi"});
@@ -260,7 +260,7 @@ Grafo_D* incializar_mapa(void) {
 
 void mostrar_ciudades(const Grafo_D* mapa) {
     clear();
-    println("Lista de ciudades disponibes:");
+    println("Lista de ciudades disponibles:");
     Vect_V* ciudades = grafo_d_get_vertices(mapa);
     if(!ciudades) {
         println("Se precento un error al cargar las ciudades, intentelo denuevo");
@@ -349,13 +349,13 @@ void configurar_parametros(Contexto* cntx) {
                 "-----------------------------------------------"); endl;
 
         println("Parametros Generales:");
-        print_param_config(&cntx->config, &cntx->vehiculo);      endl;
+        print_param_config(&cntx->config, &cntx->vehiculo);         endl;
         println("1. Precio de Litro de Combustible",
                 "2. Combustible Reabastecido por Carga",
                 "-----------------------------------------------"); endl;
     
         println("Parametros del Vehiculo:");
-        print_param_vehiculo(&cntx->vehiculo);                   endl;
+        print_param_vehiculo(&cntx->vehiculo);                      endl;
         println("3. Peso del Vehiculo",
                 "4. Capacidad de Carga",
                 "5. Capacidad de Combustible",
@@ -528,7 +528,7 @@ Lista_D* leer_ciudades_destino(const Grafo_D* mapa) {
             usuario_esta_seguro = true;
         else {
             printf( "El peso restante de la carga del vehiculo\n"
-                    "al finalizar el viaje es de %.1f", carga_restante);
+                    "al finalizar el viaje es de %.1f\n", carga_restante);
             println("Esta seguro que desea continuar? (1-Si|2-No)");
             edlib_set_prompt(PROMPT_OPC);
             usuario_esta_seguro = !(bool)(validar_int_en_rango(1,2)-1);
@@ -573,23 +573,30 @@ Viaje viaje_secuencial(const Grafo_D* mapa) {
     Lista_D* ciudades = leer_ciudades_destino(mapa);
     Camino_D* camino = camino_d_crear_trivial(lista_d_pop_inicio(ciudades));
     while(!lista_d_isempty(ciudades)) {
+
         Camino_D* segmento = grafo_d_dijkstra_unico(mapa,
             camino_d_get_fin(camino),
             lista_d_get_inicio(ciudades)
         );
+
         for(int i=0; i<segmento->saltos; ++i) {
             float consumo = segmento->ars[i]->longitud/
                 calcular_rendimiento_actual(mapa->contexto);
-            float peaje = segmento->ars[i]->cuota;
-            //Consumir Tanque inicial, rellenar con una fraccion del tanque 
-            if(mapa->contexto->viaje.combustible > consumo) {
-                mapa->contexto->viaje.combustible-=consumo;
-            } else {
-                mapa->contexto->viaje.combustible+=
+            //Rellenar con una fraccion del tanque si falta combustible
+            //o el combustible nesesario para cruzar la carretera en caso
+            //de no ser suficiente
+            if(consumo > mapa->contexto->viaje.combustible) {
+                mapa->contexto->viaje.combustible += max(
                     mapa->contexto->config.reabastecimiento*
-                    mapa->contexto->vehiculo.combustible_max;
+                    mapa->contexto->vehiculo.combustible_max,
+                    consumo
+                );
             }
-            //Encontrar otra ruta si se nos acaba el presupuesto
+            mapa->contexto->viaje.combustible-=consumo;
+
+            float peaje = segmento->ars[i]->cuota;
+            //Encontrar restar peaje al presupuesto o encontrar otra
+            //ruta en caso de no tener el presupuesto necesario
             if(mapa->contexto->viaje.presupuesto >= peaje) {
                 mapa->contexto->viaje.presupuesto-=peaje;
             } else {
@@ -597,6 +604,7 @@ Viaje viaje_secuencial(const Grafo_D* mapa) {
                 break;
             }
         }
+
         camino = camino_d_concat(camino, segmento);
         if(camino_d_get_fin(camino)==lista_d_get_inicio(ciudades)) {
             //Actualizar carga cuando llegamos al destino
@@ -624,29 +632,42 @@ Viaje viaje_generico(const Grafo_D* mapa) {
     println("Iniciando Viaje Generico",
             "Los destinos que se ingresen a continuacion se visitaran en",
             "el  orden  mas  conveniente  para  realizar  las  entregas");
+    endl;
     mapa->contexto->viaje = leer_parametros_viaje(&mapa->contexto->vehiculo);
     Viaje viaje = {*(mapa->contexto), NULL};
 
     Lista_D* ciudades = leer_ciudades_destino(mapa);
     Camino_D* camino = camino_d_crear_trivial(lista_d_pop_inicio(ciudades));
+    
     while(!lista_d_isempty(ciudades)) {
-        Camino_D* segmento = grafo_d_dijkstra_unico(mapa,
+        
+        Vect_V* candidatos = vect_v_crear(ciudades->tamano);
+        lista_d_copiar_a_arreglo(ciudades, candidatos->vertices);
+        Camino_D* segmento = grafo_d_dijkstra_al_mas_cercano(mapa,
             camino_d_get_fin(camino),
-            lista_d_get_inicio(ciudades)
+            candidatos
         );
+        vect_v_destruir(candidatos);
+        Ciudad* objetivo = camino_d_get_fin(segmento);
+
         for(int i=0; i<segmento->saltos; ++i) {
             float consumo = segmento->ars[i]->longitud/
                 calcular_rendimiento_actual(mapa->contexto);
-            float peaje = segmento->ars[i]->cuota;
-            //Consumir Tanque inicial, rellenar con una fraccion del tanque 
-            if(mapa->contexto->viaje.combustible > consumo) {
-                mapa->contexto->viaje.combustible-=consumo;
-            } else {
-                mapa->contexto->viaje.combustible+=
+            //Rellenar con una fraccion del tanque si falta combustible
+            //o el combustible nesesario para cruzar la carretera en caso
+            //de no ser suficiente
+            if(consumo > mapa->contexto->viaje.combustible) {
+                mapa->contexto->viaje.combustible += max(
                     mapa->contexto->config.reabastecimiento*
-                    mapa->contexto->vehiculo.combustible_max;
+                    mapa->contexto->vehiculo.combustible_max,
+                    consumo
+                );
             }
-            //Encontrar otra ruta si se nos acaba el presupuesto
+            mapa->contexto->viaje.combustible-=consumo;
+
+            float peaje = segmento->ars[i]->cuota;
+            //Encontrar restar peaje al presupuesto o encontrar otra
+            //ruta en caso de no tener el presupuesto necesario
             if(mapa->contexto->viaje.presupuesto >= peaje) {
                 mapa->contexto->viaje.presupuesto-=peaje;
             } else {
@@ -654,11 +675,13 @@ Viaje viaje_generico(const Grafo_D* mapa) {
                 break;
             }
         }
+
         camino = camino_d_concat(camino, segmento);
-        if(camino_d_get_fin(camino)==lista_d_get_inicio(ciudades)) {
+        if(camino_d_get_fin(camino)==objetivo) {
             //Actualizar carga cuando llegamos al destino
             mapa->contexto->viaje.carga-=camino_d_get_fin(camino)->peso_entrega;
-            lista_d_eliminar_inicio(ciudades);
+            printf("Objetivo a eliminar: %p\n", objetivo);
+            lista_d_eliminar_elem(ciudades, objetivo);
         }
     }
 
@@ -705,8 +728,6 @@ void print_viaje(Viaje viaje) {
         total.tiempo += tmp.tiempo;
         total.peaje += carretera->cuota;
         total.combustible+=tmp.combustible;
-        if(total.combustible >= viaje.contexto.viaje.combustible)
-            total.combustible_transito+=tmp.combustible;
 
         //Actualizar Contexto
         viaje.contexto.viaje.carga -= ciudad->peso_entrega;
@@ -726,6 +747,11 @@ void print_viaje(Viaje viaje) {
         endl;
     }
     endl;
+
+    if(total.combustible > viaje.contexto.viaje.combustible) {
+        total.combustible_transito = total.combustible -
+        viaje.contexto.viaje.combustible;
+    }
 
     println("-------------Desglose Final--------------");
     printf("Distancia Total Recorrida:          %-6.1f Km\n", total.distancia);
@@ -748,40 +774,45 @@ void print_viaje(Viaje viaje) {
 
 void print_ayuda_general(void) {
     clear();
-    println("Bienvenido al sistema de Gestion de Transporte Aceros ACME",
+    println("Bienvenido al sistema de Gestion de Transporte ACME Technologies"       ,
             "El  objetivo del sistema es trazar rutas entre los distintos destinos"  ,
-            "de entrega de la empreza de materiales pesados Aceros ACME"             ,
+            "de entrega de las empresas que decidan hacer uso del sistema"           ,
             ""                                                                       ,
             "Para empezar a usar el sistema, exploremos las distintas opciones que"  ,
             "el programa permite realizar para facilitar las planeaciones de rutas"  ,
             ""                                                                       ,
             "Mostrar Destinos Disponibles"                                           ,
+            "----------------------------------------------------------------------" ,
             "Lista  los  nombres  de  todos los destinos  disponibles para realizar" ,
             "entregas. Estos nombres son importantes ya que son los identificadores" ,
             "usados  para  indicarle al sistema como realizar los viajes requeridos" ,
             ""                                                                       ,
             "Configurar Parametros"                                                  ,
+            "----------------------------------------------------------------------" ,
             "Abre un submenu con los parametros o opciones que el usuario es capaz"  ,
             "de  modificar  para  que  el  sistema  pueda realizar los calculos de"  ,
             "optimizacion de rutas de forma consistente con la realidad."            ,
             ""                                                                       ,
             "Seleccionar Prioridad"                                                  ,
+            "----------------------------------------------------------------------" ,
             "Abre un submenu donde se puede decidir que aspecto del viaje optimizar" ,
             "la  opcion elegida en este menu cambiara los resultados del proceso de" ,
             "enrutamiento."                                                          ,
             ""                                                                       ,
             "Generar Ruta Secuencial"                                                ,
+            "----------------------------------------------------------------------" ,
             "Empieza el proceso de enrutamiento desplegando un dialogo en donde se"  ,
             "especificaran  los destinos a visitar y las entregas a realizar en el"  ,
             "orden  en  que  deben ser realizadas. Es util para organizar entregas"  ,
             "sensibles al tiempo."                                                   ,
             ""                                                                       ,
             "Generar Ruta Generica"                                                  ,
+            "----------------------------------------------------------------------" ,
             "Empieza el proceso de enrutamiento desplegando un dialogo en donde se"  ,
             "especificaran  los  destinos  a visitar y las entregas a realizar. El"  ,
-            "orden en el que se introduzca los destinos (a excepcion del primero)"   ,
-            "no tiene ninguna revancia, ya que el sistema se encargara de encontrar" ,
-            "la ruta mas optima que una todos estos destinos"
+            "orden  en el que se introduzca los destinos (a excepcion del primero)"  ,
+            "no  tiene  ninguna  relevancia,  ya  que  el  sistema se encargara de"  ,
+            "encontrar la ruta mas optima que una todos estos destinos"
     );
     flush();
 }
