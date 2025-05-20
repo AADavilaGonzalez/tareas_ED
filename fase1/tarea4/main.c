@@ -220,6 +220,7 @@ void infijo_a_posfijo_dinamico(Pila_D* pila) {
 }
 
 int main(void) {
+	Pila_D* pila_dinamica = NULL;
     static const char* titulo =
     "TRANSFORMACION DE EXPRESIONES INFIJAS A POSFIJAS";
     static const char* menu_principal =
@@ -239,9 +240,9 @@ int main(void) {
             break;
         }
         case 2:
-            Pila_D* pila = pila_dinamica_crear();
-            infijo_a_posfijo_dinamico(pila);
-            pila_dinamica_destruir(pila);
+            pila_dinamica = pila_dinamica_crear();
+            infijo_a_posfijo_dinamico(pila_dinamica);
+            pila_dinamica_destruir(pila_dinamica);
             break;
         case 3:
             exit(EXIT_SUCCESS);

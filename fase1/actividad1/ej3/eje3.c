@@ -98,17 +98,17 @@ void negativos(Cola *colanumeros, Cola *colanegativa)
 
     while (!(colanumeros -> frente == NULL))
     {
-        valor = quitar(colanumeros);
+        valor = eliminar_cola(colanumeros);
 
         if(valor < 0)
-            crearcola(colanegativa, valor);
+            insertar_cola(colanegativa, valor);
 
-        crearcola(&temporal, valor);
+        insertar_cola(&temporal, valor);
 
     }
 
     while(!(colanumeros -> frente == NULL))
-        crearcola(colanumeros, quitar(&temporal));
+        insertar_cola(colanumeros, eliminar_cola(&temporal));
 }
 
 //funcion principal 
@@ -120,12 +120,12 @@ int main()
     int i, num, min = -25, max = 25, random;
 
     inicializar(&colanumeros);
-        ;
+    inicializar(&cola_negativa);
 
     for(i = 0; i < 100; i++)//generar los 100 numeros aleatorios (-25, 25)
     {
         num = min + rand() % (max - min + 1);
-        crearcola(&colanumeros, num);
+        insertar_cola(&colanumeros, num);
     }
 
     printf("Cola de numeros: \n");
