@@ -9,6 +9,7 @@
 !*.md
 !*.pdf
 !*.drawio
+!*.svg
 
 #Lista Blanca
 !presentacion/link.txt
